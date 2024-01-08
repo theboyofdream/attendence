@@ -1,10 +1,10 @@
-import { Providers } from "~src/Providers";
+import { MMKVLoader } from "react-native-mmkv-storage";
 import { Router } from "~src/Router";
 
-export default function App():JSX.Element{
-  return(
-    <Providers>
-      <Router />
-    </Providers>
+export const storage = new MMKVLoader().initialize();
+
+export default function App(): JSX.Element {
+  return (
+    <Router />
   )
 }

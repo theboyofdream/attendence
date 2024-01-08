@@ -1,8 +1,9 @@
 import { NavigationContainer } from "@react-navigation/native";
 import { NativeStackNavigationOptions, createNativeStackNavigator } from "@react-navigation/native-stack";
-import { LoginPage,HomePage,CameraPage } from "~pages";
+import { CameraPage, HomePage, LoginPage } from "~pages";
+import { useAuthStore } from "~src/stores";
 
-export type Routes ={
+export type Routes = {
   login: undefined
   home: undefined
   camera: undefined
@@ -10,16 +11,24 @@ export type Routes ={
 
 const Stack = createNativeStackNavigator<Routes>();
 const options: NativeStackNavigationOptions = {
-  headerShown: false
+  headerShown: false,
+  animation: 'fade'
 }
 
 export function Router() {
+  const { user } = useAuthStore()
+
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={options}>
-        <Stack.Screen name='login' component={LoginPage}/>
-        <Stack.Screen name='home' component={HomePage}/>
-        <Stack.Screen name='camera' component={CameraPage}/>
+        {!user.loggedIn ?
+          <Stack.Screen name='login' component={LoginPage} />
+          :
+          <>
+            <Stack.Screen name='home' component={HomePage} />
+            <Stack.Screen name='camera' component={CameraPage} />
+          </>
+        }
       </Stack.Navigator>
     </NavigationContainer>
   )
