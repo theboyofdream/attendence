@@ -1,0 +1,59 @@
+* {
+  /* input */
+  color: #F1F1EF;
+  /* danger bg */
+  color: #FCEEED;
+  /* danger */
+  color: #E35A5A;
+  /* overlay */
+  color: #6F6F6F;
+  /* link */
+  color: #2283E2;
+  /* link lite */
+  color: #BCD6EE;
+  /* shadow */
+  color: #C5C4C0;
+  /* bg */
+  color: #FFFFFF;
+  /*  */
+  color: #EEEEEC;
+  color: #91928D;
+  color: #31302B;
+  color: #787773;
+
+  primary50: #F5F5F5;
+  primary100: #E9E9E9;
+  primary200: #D9D9D9;
+  primary300: #C4C4C4;
+  primary400: #9D9D9D;
+  primary500: #7B7B7B;
+  primary600: #555555;
+  primary700: #434343;
+  primary800: #262626;
+  primary900: #000000;
+
+  /** 
+   * linkText #005CE6 #525CEB
+   * linkBg #F0F6FF #BFCFE7
+   */
+
+  /*  */
+  color: #87ceeb;
+  color: #0000ff;
+}
+
+/**
+ * primary50 #F5F5F5
+ * primary100 #E9E9E9
+ * primary200 #D9D9D9
+ * primary300 #C4C4C4
+ * primary400 #9D9D9D
+ * primary500 #7B7B7B
+ * primary600 #555555
+ * primary700 #434343
+ * primary800 #262626
+ * primary900 #000000
+ * 
+ * linkText #005CE6 #525CEB
+ * linkBg #F0F6FF #BFCFE7
+ */
