@@ -8,5 +8,11 @@ export function useDimension() {
     setDimensions(newDimensions.screen)
   })
 
-  return { ...dimensions }
+  return { 
+    ...dimensions
+   }
+  // return { 
+  //   width: dimensions.width * dimensions.scale,
+  //   height: dimensions.height * dimensions.scale
+  //  }
 }

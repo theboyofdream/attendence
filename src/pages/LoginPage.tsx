@@ -17,7 +17,7 @@ const LOGIN_SCHEMA = Yup.object().shape({
 })
 
 export function LoginPage() {
-	const { user, login } = useAuthStore()
+	const { login } = useAuthStore()
 
 	return (
 		<Screen style={$.screen}>
