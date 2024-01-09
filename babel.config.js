@@ -10,16 +10,11 @@ module.exports = {
           '~assets': './src/assets',
           '~components': './src/components',
           '~pages': './src/pages',
+          // '~providers': './src/providers',
           '~stores': './src/stores',
           '~src': './src',
         },
       },
     ],
-    'react-native-paper/babel'
-  ],
-  // env: {
-  //   production: {
-  //     plugins: ['react-native-paper/babel'],
-  //   },
-  // },
+  ]
 };
