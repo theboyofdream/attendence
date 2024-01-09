@@ -38,7 +38,7 @@ export function Button(props: ButtonProps) {
       onPressOut={onPressOut}
     >
       <>
-        {props.leftIconName && <MaterialIcon name={props.leftIconName} color={$[variant].color} size={FONTSIZE.lg} />}
+        {props.leftIconName && <MaterialIcon name={props.leftIconName} color={$[variant].color} size={FONTSIZE.md} />}
         {props.title && <Text
           style={[
             $[variant],
@@ -47,7 +47,7 @@ export function Button(props: ButtonProps) {
             props.titleStyle
           ]}
         >{props.title}</Text>}
-        {props.rightIconName && <MaterialIcon name={props.rightIconName} color={$[variant].color} size={FONTSIZE.lg} />}
+        {props.rightIconName && <MaterialIcon name={props.rightIconName} color={$[variant].color} size={FONTSIZE.md} />}
       </>
     </Pressable>
     //   {props.right && props.right}
@@ -105,6 +105,7 @@ const $ = StyleSheet.create({
   },
   infoText: {
     borderColor: COLORS.transparent,
+    backgroundColor: COLORS.transparent,
     color: COLORS.infoText,
   },
   infoFilled: {
