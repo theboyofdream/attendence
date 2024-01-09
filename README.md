@@ -15,7 +15,11 @@ yarn add @react-navigation/native-stack
 yarn add react-native-mmkv-storage
 
 yarn add react-native-vision-camera
+yarn add @react-native-community/hooks --using for--> useAppState()
 
+
+
+yarn add @react-native-community/geolocation
 
 ### CREDITS
 
