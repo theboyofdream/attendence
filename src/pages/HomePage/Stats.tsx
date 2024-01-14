@@ -1,9 +1,21 @@
-import { StyleSheet, View, ViewStyle } from "react-native";
-import { Text } from "~components";
+import { useMemo, useRef, useState } from "react";
+import { ScrollView, StyleSheet, View, ViewStyle, Animated } from "react-native";
+import { Skeleton, Text } from "~components";
 import { useDimension } from "~src/hooks";
-import { COLORS, ROUNDNESS, SPACING } from "~src/theme";
+import { useTypesOfAttendanceStatus } from "~stores";
+import { COLORS, ROUNDNESS, SPACING } from "~utils";
 
-export function Stats(){
+export function Stats() {
+  const { statusTypes } = useTypesOfAttendanceStatus()
+  const chunkedStatusTypes = useMemo(() => {
+    const chunkSize = 6;
+    let result = []
+    for (let i = 0; i < statusTypes.length; i += chunkSize) {
+      result.push(statusTypes.slice(i, i + chunkSize));
+    }
+    return result;
+  }, [statusTypes])
+
   const { width } = useDimension();
   const margin = SPACING.lg
   const itemsPerRow = 3
@@ -13,36 +25,80 @@ export function Stats(){
   const style: ViewStyle = {
     ...$.statsContainer,
     width: rowItemWidth,
-    borderRadius: ROUNDNESS.sm
+    borderRadius: ROUNDNESS.md
   }
-  return(
-    <View style={[$.statsWrapper, {
-      gap: totalRowGap / (itemsPerRow - 1),
-      marginVertical: margin / 2
-    }]}>
-      <View style={style}>
-        <Text>Present</Text>
-        <Text>0</Text>
-      </View>
-      <View style={style}>
-        <Text>Absent</Text>
-        <Text>0</Text>
-      </View>
-      <View style={style}>
-        <Text>Half Day</Text>
-        <Text>0</Text>
-      </View>
-      <View style={style}>
-        <Text>Leave</Text>
-        <Text>0</Text>
-      </View>
-      <View style={style}>
-        <Text>Fine</Text>
-        <Text>0</Text>
-      </View>
-      <View style={style}>
-        <Text>Overtime</Text>
-        <Text>0</Text>
+
+  const pageWidth = (rowItemWidth + (SPACING.lg * 2)) * itemsPerRow;
+  const pageIndicator0 = useRef(new Animated.Value(20)).current
+  const pageIndicator1 = useRef(new Animated.Value(0)).current
+  function animatePageIndicator(variableToBeAnimated: Animated.Value, toValue: number) {
+    Animated.timing(variableToBeAnimated, {
+      toValue: toValue,
+      useNativeDriver: false,
+      duration: 40
+    }).start()
+  }
+
+  return (
+    <View>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        decelerationRate={0}
+        snapToAlignment="start"
+        snapToInterval={pageWidth}
+        onScroll={(e) => {
+          const { x } = e.nativeEvent.contentOffset
+          animatePageIndicator(pageIndicator0, x >= 0 && x < pageWidth * 0.5 ? 20 : 10)
+          animatePageIndicator(pageIndicator1, x >= pageWidth * 0.5 && x < pageWidth * 1.5 ? 20 : 10)
+        }}
+      >
+        {chunkedStatusTypes.length < 1 &&
+          [[1, 2, 3, 4, 5, 6], [7, 8, 9, 10]].map((subArray, index) =>
+            <View
+              key={index}
+              style={[$.statsWrapper, {
+                gap: totalRowGap / (itemsPerRow - 1),
+                margin: SPACING.md,
+                width: (rowItemWidth + (SPACING.lg * 1.5)) * itemsPerRow,
+              }]}
+            >
+              {
+                subArray.map(i =>
+                  <View style={[style]} key={i}>
+                    <Skeleton style={{ width: '60%', height: SPACING.md * 0.8, borderRadius: ROUNDNESS.xs, backgroundColor: COLORS.textMuted + '80' }} />
+                    <Skeleton style={{ width: '20%', height: SPACING.lg * 1.2, borderRadius: ROUNDNESS.xs, backgroundColor: COLORS.textMuted + '80' }} />
+                  </View>
+                )
+              }
+            </View>
+          )
+        }
+        {
+          chunkedStatusTypes.map((types, index) =>
+            <View
+              key={index}
+              style={[$.statsWrapper, {
+                gap: totalRowGap / (itemsPerRow - 1),
+                margin: SPACING.md,
+                width: (rowItemWidth + (SPACING.lg * 1.5)) * itemsPerRow,
+              }]}
+            >
+              {
+                types.map(type =>
+                  <View style={style} key={type.id}>
+                    <Text variant='caption'>{type.name}</Text>
+                    <Text>{type.id}</Text>
+                  </View>
+                )
+              }
+            </View>
+          )
+        }
+      </ScrollView>
+      <View style={{ justifyContent: 'center', alignContent: 'center', flexDirection: 'row', gap: SPACING.xs }}>
+        <Animated.View style={[{ width: pageIndicator0 }, $.pageIndicator]} />
+        <Animated.View style={[{ width: pageIndicator1 }, $.pageIndicator]} />
       </View>
     </View>
   )
@@ -52,10 +108,17 @@ const $ = StyleSheet.create({
   statsWrapper: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'center'
   },
   statsContainer: {
+    minHeight: 80,
     backgroundColor: COLORS.backgroundSecondary,
-    padding: SPACING.lg
+    padding: SPACING.lg,
+    justifyContent: 'space-between'
+  },
+  pageIndicator: {
+    minWidth: 10,
+    height: 10,
+    borderRadius: 100,
+    backgroundColor: COLORS.text
   }
 })
