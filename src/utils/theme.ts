@@ -1,7 +1,7 @@
 export const COLORS = {
   background: '#FFFFFF',
-  backgroundSecondary: '#F5F5F5',// '#E9E9E9',//'#9D9D9D',
-  backgroundTertiary: '#7B7B7B',
+  backgroundSecondary: '#F5F5F5',//'#dddddd90', //'#F5F5F5',// '#E9E9E9',//'#9D9D9D',
+  // backgroundTertiary: '#e9e9e9', //'#7B7B7B',
 
   dangerText: '#E82334',
   dangerBackground: '#FCEEED',
@@ -9,12 +9,14 @@ export const COLORS = {
   text: '#000000',
   textSecondary: '#262626',
   textTertiary: '#434343',
-  textMuted: '#00000050',
+  textMuted: '#666666',
 
   infoText: '#1A77D6',
   infoBackground: '#1A77D620',
 
-  transparent: '#00000000'
+  transparent: '#00000000',
+
+  skeleton: '#66666680'
 }
 
 export const FONTSIZE = {
@@ -22,7 +24,7 @@ export const FONTSIZE = {
   xs: 14,
   sm: 16,
   md: 18,
-  lg: 24
+  lg: 20
 }
 
 export const SPACING = {
@@ -34,7 +36,9 @@ export const SPACING = {
 }
 
 export const ROUNDNESS = {
+  xs: 4,
   sm: 8,
   md: 12,
-  lg: 16
+  lg: 16,
+  circle: 100
 }
