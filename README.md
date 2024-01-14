@@ -1,25 +1,32 @@
-yarn add react-native-paper
-yarn add react-native-safe-area-context
-
 yarn add react-native-vector-icons
 edit => android/app/build.gradle
-yarn add @types/react-native-vector-icons
+dev:  yarn add @types/react-native-vector-icons
 
 yarn add --dev babel-plugin-module-resolver
 edit => babel.config.js & tsconfig.json
 
 yarn add @react-navigation/native
-yarn add react-native-screens react-native-safe-area-context
+yarn add react-native-screens 
+yarn add react-native-safe-area-context
 yarn add @react-navigation/native-stack
 
 yarn add react-native-mmkv-storage
 
+yarn add zustand
+
 yarn add react-native-vision-camera
 yarn add @react-native-community/hooks --using for--> useAppState()
 
-
-
 yarn add @react-native-community/geolocation
+yarn add react-native-android-location-enabler
+
+yarn add eslint-plugin-react-hooks --dev
+
+yarn add react-native-apk-install
+yarn add react-native-fs
+
+### ERRORS
+https://stackoverflow.com/questions/24494077/gradle-force-build-tools-version-on-third-party-libraries/25736483#25736483
 
 ### CREDITS
 
@@ -30,3 +37,35 @@ yarn add @react-native-community/geolocation
 <a href="https://www.freepik.com/free-vector/login-concept-illustration_11683784.htm#position=6">Image by storyset</a> on Freepik
 
 notioly.com -> login.jpg
+
+
+
+
+
+
+
+e. Unpaid Leave
+f. Week Off
+g. In time approval pending
+h. Out time approval pending
+i. Approval Pending
+j. Not marked
+
+CREATE TABLE tbl_attendance_status (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL,
+    description VARCHAR(255),
+    color VARCHAR(50)
+);
+
+INSERT INTO tbl_attendance_status (name, description, color) VALUES
+('Absent', '', ''),
+('Present', '', ''),
+('Half-Day', '', ''),
+('Paid Leave', '', ''),
+('Unpaid Leave', '', ''),
+('Week Off', '', ''),
+('In time approval pending', '', ''),
+('Out time approval pending', '', ''),
+('Approval Pending', '', ''),
+('Not marked', '', '');
