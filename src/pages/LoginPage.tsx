@@ -1,9 +1,11 @@
 import { Formik } from "formik";
-import { Image, StyleSheet, View } from "react-native";
+import { useState } from "react";
+import { Image, Pressable, StyleSheet, View } from "react-native";
 import * as Yup from 'yup';
 import { Button, Input, Screen, Text } from "~components";
-import { SPACING } from '~src/theme';
+import { COLORS, FONTSIZE, SPACING } from '~src/utils';
 import { useAuthStore } from "~stores";
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 
 const LOGIN_SCHEMA = Yup.object().shape({
 	email: Yup.
@@ -18,17 +20,18 @@ const LOGIN_SCHEMA = Yup.object().shape({
 
 export function LoginPage() {
 	const { login } = useAuthStore()
+	const [isPasswordVisible, setPasswordVisibility] = useState(false);
 
 	return (
 		<Screen style={$.screen}>
 			<Text variant="title">ATTENDENCE LOGIN</Text>
 			<Image source={require('src/assets/login.jpg')} style={$.loginImage} />
 			<Formik
-				initialValues={{ email: 'example@mail.com', password: '1234567890' }}
+				// initialValues={{ email: 'example@mail.com', password: '1234567890' }}
+				initialValues={{ email: 'inam@dhwajpartner.com', password: 'inam@123' }}
 				validationSchema={LOGIN_SCHEMA}
 				onSubmit={(form) => {
 					login(form.email, form.password)
-					// setUser({ ...form, loggedIn: true })
 				}}
 				children={
 					({ handleChange, handleBlur, handleSubmit, errors, values, touched }) => (
@@ -48,7 +51,16 @@ export function LoginPage() {
 								onChangeText={handleChange('password')}
 								onBlur={handleBlur('password')}
 								errorText={touched.password ? errors.password : ''}
+								secureTextEntry={!isPasswordVisible}
 							/>
+							<Pressable style={{ flexDirection: 'row', gap: SPACING.md, alignItems: 'center' }} onPress={() => setPasswordVisibility(!isPasswordVisible)}>
+								<View style={{ position: 'relative' }}>
+									<MaterialCommunityIcons name="square-rounded" size={FONTSIZE.lg} color={COLORS[(touched.password && errors.password) ? 'dangerBackground' : 'backgroundSecondary']} style={{ position: isPasswordVisible ? 'absolute' : 'relative' }} />
+									{isPasswordVisible && <MaterialCommunityIcons name="check" size={FONTSIZE.md * 0.9} color={COLORS[(touched.password && errors.password) ? 'dangerText' : 'text']} style={{ padding: 3, paddingVertical: 4 }} />}
+								</View>
+								<Text>Show Password</Text>
+							</Pressable>
+
 							<Button style={$.submitButton} title="login" variant="primary" onPress={() => handleSubmit()} />
 						</View>
 					)
@@ -74,7 +86,7 @@ const $ = StyleSheet.create({
 		minWidth: 300,
 		width: '80%',
 		maxWidth: 400,
-		gap: SPACING.lg
+		gap: SPACING.md
 	},
 	submitButton: {
 		alignSelf: 'flex-end'
