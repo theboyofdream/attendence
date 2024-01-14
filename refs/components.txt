@@ -1,0 +1,17 @@
+AVATAR
+
+  {/* <IconButton
+          type="letter"
+          letter={user.firstname.charAt(0) + user.lastname.charAt(0)}
+          variant="primary"
+          letterStyle={{ fontWeight: 'bold', letterSpacing: 1.5 }}
+          onPress={() => setProfileVisibility(true)}
+        /> */}
+
+
+header 
+  {/* <View style={$.header}> */}
+      {/* <IconButton type="letter" letter={user.firstname.charAt(0) + user.lastname.charAt(0)} variant="primary" letterStyle={{ fontWeight: 'bold', letterSpacing: 1.5 }} onPress={() => setProfileVisibility(true)} /> */}
+      {/* <Text variant="title" style={{ flex: 1 }}>My Attendence</Text> */}
+      {/* <IconButton type="icon" iconName="logout" onPress={logout} /> */}
+      {/* </View> */}
