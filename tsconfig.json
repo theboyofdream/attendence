@@ -3,13 +3,26 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "~api": ["src/api"],
-      "~assets/*": ["src/assets/*"],
-      "~components": ["src/components"],
-      "~pages": ["src/pages"],
+      // "~api": ["src/api"],
+      "~assets/*": [
+        "src/assets/*"
+      ],
+      "~components": [
+        "src/components"
+      ],
+      "~pages": [
+        "src/pages"
+      ],
       // "~providers": ["src/providers"],
-      "~stores": ["src/stores"],
-      "~src/*": ["src/*"]
+      "~stores": [
+        "src/stores"
+      ],
+      "~utils": [
+        "src/utils"
+      ],
+      "~src/*": [
+        "src/*"
+      ]
     }
   }
 }
