@@ -1,5 +1,5 @@
 import { Text as RNText, StyleSheet, TextProps } from "react-native";
-import { COLORS, FONTSIZE } from "~src/theme";
+import { COLORS, FONTSIZE, SPACING } from "~src/utils";
 
 type style = keyof typeof $;
 type TypologyProps = {
@@ -29,10 +29,12 @@ const $ = StyleSheet.create({
   },
   title: {
     fontSize: FONTSIZE.lg,
+    letterSpacing: SPACING.xs * 0.7,
     fontWeight: 'bold'
   },
   subTitle: {
     fontSize: FONTSIZE.md,
+    letterSpacing: SPACING.xs * 0.7,
     fontWeight: 'bold'
   },
   paragraph: {},

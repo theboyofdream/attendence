@@ -1,6 +1,6 @@
 import { ViewProps } from "react-native";
 import { Screen as RNScreen } from "react-native-screens";
-import { COLORS } from "~src/theme";
+import { COLORS } from "~src/utils";
 
 export function Screen(props: ViewProps) {
     return (

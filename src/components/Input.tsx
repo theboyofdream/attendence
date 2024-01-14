@@ -1,5 +1,6 @@
+import { ReactNode } from 'react';
 import { Text, TextInput, TextInputProps, View } from 'react-native';
-import { COLORS, ROUNDNESS, SPACING } from '~src/theme';
+import { COLORS, FONTSIZE, ROUNDNESS, SPACING } from '~src/utils';
 
 export type InputProps = TextInputProps & {
   label?: string;
@@ -22,8 +23,10 @@ export const Input = (props: InputProps) => {
         style={[
           {
             backgroundColor: COLORS[props.errorText ? 'dangerBackground' : 'backgroundSecondary'],
+            borderRadius: ROUNDNESS.sm,
             color: COLORS[props.errorText ? 'dangerText' : 'text'],
-            borderRadius: ROUNDNESS.sm, padding: SPACING.lg,
+            padding: SPACING.md,
+            fontSize: FONTSIZE.sm
           },
           props.style
         ]}
