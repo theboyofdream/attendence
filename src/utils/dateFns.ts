@@ -1,5 +1,16 @@
+
 export const dateFns = {
   format: (date: Date, options: Intl.DateTimeFormatOptions) => new Intl.DateTimeFormat('en', options).format(date),
+  toHumanReadleDate: (date: Date) => {
+    return dateFns.format(date, {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+    });
+  },
   //
   parseDate: (serverDate: string, type: 'date' | 'time' | 'datetime' = 'datetime') => {
     let result = null;
