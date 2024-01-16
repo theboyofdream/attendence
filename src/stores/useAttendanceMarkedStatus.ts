@@ -1,5 +1,6 @@
 import { useEffect } from "react"
 import { useMMKVStorage } from "react-native-mmkv-storage"
+import fs from 'react-native-fs';
 import { storage, useAuthStore } from "~stores"
 import { URI, dateFns, fetcher } from "~utils"
 
@@ -9,10 +10,7 @@ export type markAttendanceParams = {
     latitude: number,
     longitude: number
   },
-  image: {
-    uri: string,
-    name: string,
-  },
+  imageUri: string,
   datetime: Date
 }
 type response = {
@@ -38,12 +36,15 @@ export function useAttendanceMarkedStatus() {
   async function markAttendance(params: markAttendanceParams, type: 'in time' | 'out time') {
     const uri = type === 'in time' ? URI['punch in'] : URI['punch out']
 
+    const image = await fs.readFile(params.imageUri, 'base64')
+    // console.log(image);
+
     const { status, statusText, data } = await fetcher.postForm(uri, {
       franchise_id: user.franchiseId,
       user_id: user.id,
       date: dateFns.stringifyDate(params.datetime, 'date'),
       time_in: dateFns.stringifyDate(params.datetime, 'time'),
-      face_capture_pic: { ...params.image, type: 'image/jpg' },
+      face_capture_pic: image,
       location: params.location.address,
       latitude: params.location.latitude,
       longitude: params.location.longitude,
@@ -77,6 +78,18 @@ export function useAttendanceMarkedStatus() {
   }
 }
 
+
+async function base64File(url: string) {
+  const data = await fetch(url);
+  const blob = await data.blob();
+  const reader = new FileReader();
+  let base64Data: string | ArrayBuffer = ''
+  reader.readAsDataURL(blob);
+  reader.onloadend = () => {
+    base64Data = reader.result;
+  };
+  return base64Data;
+}
 
 /**
 franchise_id:8

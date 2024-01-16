@@ -1,4 +1,4 @@
-import { useMMKVStorage } from "react-native-mmkv-storage";
+import MMKVStorage, { useMMKVStorage } from "react-native-mmkv-storage";
 import { storage } from "~stores";
 import { URI, dateFns, fetcher } from "~src/utils";
 
@@ -37,7 +37,8 @@ export function useAuthStore() {
   }
 
   function logout() {
-    setUser(parseLoginJson({}))
+    storage.clearStore();
+    // setUser(parseLoginJson({}))
   }
 
   return {
