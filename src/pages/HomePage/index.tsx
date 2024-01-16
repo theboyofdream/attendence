@@ -15,7 +15,7 @@ import { AttendanceList, AttendanceListSkeleton } from "./AttendanceList";
 
 type HomePage = NativeStackScreenProps<Routes, 'home'>
 export function HomePage({ navigation }: HomePage) {
-  const { user } = useAuthStore();
+  const { user, logout } = useAuthStore();
   const { attendanceMarkedStatus } = useAttendanceMarkedStatus();
   const [date, setDate] = useState(new Date())
   const month = useMemo(() => dateFns.getMonthInfo(date), [date])
@@ -44,13 +44,14 @@ export function HomePage({ navigation }: HomePage) {
       <View style={$.header}>
 
         <Image source={{ uri: user.picture }} style={$.image} />
-        <View>
+        <View style={{ flex: 1 }}>
           <View style={{ flexDirection: 'row', gap: SPACING.sm }}>
             <Text variant="title" style={{ textTransform: 'capitalize' }}>{user.firstname} {user.lastname}</Text>
             <Text variant="caption" muted>#{user.id}</Text>
           </View>
           <Text variant="caption">Joining Date: {user.dateOfJoining?.toLocaleDateString()}</Text>
         </View>
+        <IconButton iconName="logout" onPress={logout} />
       </View>
 
 

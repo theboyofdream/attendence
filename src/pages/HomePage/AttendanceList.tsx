@@ -37,7 +37,7 @@ const $ = StyleSheet.create({
     borderRadius: ROUNDNESS.sm,
   },
   avatar: {
-    height: FONTSIZE.lg * 1.8,
+    height: FONTSIZE.lg * 2.1,
     aspectRatio: 1,
     backgroundColor: COLORS.backgroundSecondary,
     borderRadius: 100,

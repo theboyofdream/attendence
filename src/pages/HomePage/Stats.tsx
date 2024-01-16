@@ -5,6 +5,8 @@ import { useDimension } from "~src/hooks";
 import { useTypesOfAttendanceStatus } from "~stores";
 import { COLORS, ROUNDNESS, SPACING } from "~utils";
 
+const indicatorSize = 6;
+
 export function Stats() {
   const { statusTypes } = useTypesOfAttendanceStatus()
   const chunkedStatusTypes = useMemo(() => {
@@ -29,7 +31,7 @@ export function Stats() {
   }
 
   const pageWidth = (rowItemWidth + (SPACING.lg * 2)) * itemsPerRow;
-  const pageIndicator0 = useRef(new Animated.Value(20)).current
+  const pageIndicator0 = useRef(new Animated.Value(indicatorSize * 2)).current
   const pageIndicator1 = useRef(new Animated.Value(0)).current
   function animatePageIndicator(variableToBeAnimated: Animated.Value, toValue: number) {
     Animated.timing(variableToBeAnimated, {
@@ -49,8 +51,8 @@ export function Stats() {
         snapToInterval={pageWidth}
         onScroll={(e) => {
           const { x } = e.nativeEvent.contentOffset
-          animatePageIndicator(pageIndicator0, x >= 0 && x < pageWidth * 0.5 ? 20 : 10)
-          animatePageIndicator(pageIndicator1, x >= pageWidth * 0.5 && x < pageWidth * 1.5 ? 20 : 10)
+          animatePageIndicator(pageIndicator0, x >= 0 && x < pageWidth * 0.5 ? indicatorSize * 2 : indicatorSize)
+          animatePageIndicator(pageIndicator1, x >= pageWidth * 0.5 && x < pageWidth * 1.5 ? indicatorSize * 2 : indicatorSize)
         }}
       >
         {chunkedStatusTypes.length < 1 &&
@@ -116,8 +118,8 @@ const $ = StyleSheet.create({
     justifyContent: 'space-between'
   },
   pageIndicator: {
-    minWidth: 10,
-    height: 10,
+    minWidth: indicatorSize,
+    height: indicatorSize,
     borderRadius: 100,
     backgroundColor: COLORS.text
   }
