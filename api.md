@@ -24,3 +24,57 @@ franchise_id:8
 user_id:9
 Response Json data: {"error":false,"message":"Time out: Jai Yadav"}
 Error Response : {"error":true,"message":"You have timed out for today"}
+
+
+**attendance-list**
+request
+  params: {
+    user_id,
+    franchise_id,
+    year,
+    month,
+  }
+
+response for success
+{
+  status
+  message
+  data: [{
+    date,
+    in_time,
+    in_time_pic,
+    in_time_location,
+    in_time_approval_status,
+    out_time,
+    out_time_pic,
+    out_time_location,
+    out_time_approval_status,
+  }]
+}
+
+{
+  status
+  message
+  data: [{
+    date
+    in_time:{
+      time,
+      pic,
+      location,
+      approval_status
+    },
+    out_time:{
+      time,
+      pic,
+      location,
+      approval_status
+    }
+  }]
+}
+
+response for error
+{
+  status
+  message
+  data: []
+}
