@@ -1,13 +1,12 @@
-import { useState } from "react";
 import { useMMKVStorage } from "react-native-mmkv-storage";
 import { storage } from "~stores";
 
-export type MessageType = 'info' | 'error' | 'success'
+export type MessageType = 'normal' | 'error' | 'success'
 type Message = {
   id: string;
   title: string;
   description: string;
-  type: 'info' | 'error' | 'success'
+  type: MessageType
 }
 
 export function useMessageHeader() {

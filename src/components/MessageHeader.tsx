@@ -1,10 +1,12 @@
-import { Animated, StyleSheet, View } from "react-native";
-import { Text } from "./Text";
-import { IconButton } from "./IconButton";
-import { COLORS, FONTSIZE, SPACING } from "~utils";
-import { MessageType, useMessageHeader } from "~stores";
 import { useEffect, useRef } from "react";
+import { Animated, StyleSheet, View } from "react-native";
+import { MessageType, useMessageHeader } from "~stores";
+import { COLORS, FONTSIZE, SPACING } from "~utils";
+import { IconButton } from "./IconButton";
+import { Text } from "./Text";
 
+const AnimatedText = Animated.createAnimatedComponent(Text)
+const AnimatedIconButton = Animated.createAnimatedComponent(IconButton)
 export function MessageHeader() {
   const { msg, setMsg } = useMessageHeader();
   const positionY = useRef(new Animated.Value(0)).current;
@@ -18,7 +20,7 @@ export function MessageHeader() {
         useNativeDriver: true
       }),
       Animated.timing(positionY, {
-        toValue: animateType === 'in' ? 0 : -1000,
+        toValue: animateType === 'in' ? 0 : -150,
         duration: 300,
         useNativeDriver: true
       })
@@ -35,13 +37,16 @@ export function MessageHeader() {
       height: 100,
       flexDirection: 'row',
       padding: SPACING.md,
-      display: msg ? 'flex' : 'none'
+      display: 'flex',
+      transform: [
+        { translateY: positionY }
+      ]
     }}>
       <View style={{ flex: 1 }}>
-        <Text variant="subTitle">{msg?.title}</Text>
-        <Text>{msg?.description}</Text>
+        <AnimatedText variant="subTitle" style={{ opacity }}> {msg?.title}</AnimatedText>
+        <AnimatedText style={{ opacity }}>{msg?.description}</AnimatedText>
       </View>
-      <IconButton iconName="close" iconStyle={{ size: FONTSIZE.lg }} onPress={() => setMsg(null)} />
+      <AnimatedIconButton iconName="close" style={{ opacity }} iconStyle={{ size: FONTSIZE.lg }} onPress={() => setMsg(null)} />
     </Animated.View>
   )
 }
