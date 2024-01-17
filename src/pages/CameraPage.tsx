@@ -9,15 +9,15 @@ import { Camera, useCameraDevice, useCameraFormat } from "react-native-vision-ca
 import { Button, IconButton, Text } from "~components";
 import { Routes } from "~src/App";
 import { useDimension } from "~src/hooks";
-import { markAttendanceParams, useAttendanceMarkedStatus } from "~src/stores/useAttendanceMarkedStatus";
+import { markAttendanceParams, useAttendanceMarker } from "~src/stores";
 import { COLORS, FONTSIZE, ROUNDNESS, SPACING, URI, dateFns, fetcher } from "~src/utils";
 import { useAuthStore } from "~stores";
 
 type CameraPageProps = NativeStackScreenProps<Routes, 'camera'>;
 export function CameraPage({ navigation }: CameraPageProps) {
   const { user } = useAuthStore()
-  const { width, height, scale } = useDimension();
-  const { markAttendance, attendanceMarkedStatus } = useAttendanceMarkedStatus()
+  const { width, height } = useDimension();
+  const { markAttendance, attendanceMarkedStatus } = useAttendanceMarker()
 
   const [submitting, setSubmitting] = useState(false)
   const [refreshing, setRefreshing] = useState(false);
@@ -103,7 +103,7 @@ export function CameraPage({ navigation }: CameraPageProps) {
         success = await markAttendance(params, 'out time')
       }
 
-      // success && back()
+      success && back()
     }
     setSubmitting(false)
   }
@@ -148,7 +148,6 @@ export function CameraPage({ navigation }: CameraPageProps) {
             onPress={capture}
           >
             <View style={{ width: FONTSIZE.lg * 2.8, borderRadius: ROUNDNESS.circle, aspectRatio: 1, backgroundColor: COLORS.background, justifyContent: 'center', alignItems: 'center' }}>
-              {/* <View style={{ width: FONTSIZE.lg * 2.5, borderRadius: ROUNDNESS.circle, aspectRatio: 1, backgroundColor: COLORS.text }} /> */}
             </View>
           </Pressable>
         </>
@@ -180,7 +179,7 @@ export function CameraPage({ navigation }: CameraPageProps) {
 
           <Text>
             {refreshing && 'Refreshing...'}
-
+            {submitting && 'Saving...'}
           </Text>
         </View>
       }
@@ -198,7 +197,6 @@ const $ = StyleSheet.create({
     gap: SPACING.md,
     backgroundColor: COLORS.background,
     width: '100%',
-    // zIndex: 9999
   },
   actions: {
     flexDirection: 'row',

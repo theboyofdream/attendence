@@ -2,21 +2,24 @@ import { useMemo, useRef, useState } from "react";
 import { ScrollView, StyleSheet, View, ViewStyle, Animated } from "react-native";
 import { Skeleton, Text } from "~components";
 import { useDimension } from "~src/hooks";
-import { useTypesOfAttendanceStatus } from "~stores";
+import { statusTypes, useTypesOfAttendanceStatus } from "~stores";
 import { COLORS, ROUNDNESS, SPACING } from "~utils";
 
 const indicatorSize = 6;
 
-export function Stats() {
-  const { statusTypes } = useTypesOfAttendanceStatus()
+type StatsProps = {
+  loading: boolean;
+  statusTypes: statusTypes[]
+}
+export function Stats(props: StatsProps) {
   const chunkedStatusTypes = useMemo(() => {
     const chunkSize = 6;
     let result = []
-    for (let i = 0; i < statusTypes.length; i += chunkSize) {
-      result.push(statusTypes.slice(i, i + chunkSize));
+    for (let i = 0; i < props.statusTypes.length; i += chunkSize) {
+      result.push(props.statusTypes.slice(i, i + chunkSize));
     }
     return result;
-  }, [statusTypes])
+  }, [props.statusTypes])
 
   const { width } = useDimension();
   const margin = SPACING.lg
@@ -55,7 +58,7 @@ export function Stats() {
           animatePageIndicator(pageIndicator1, x >= pageWidth * 0.5 && x < pageWidth * 1.5 ? indicatorSize * 2 : indicatorSize)
         }}
       >
-        {chunkedStatusTypes.length < 1 &&
+        {props.loading &&
           [[1, 2, 3, 4, 5, 6], [7, 8, 9, 10]].map((subArray, index) =>
             <View
               key={index}
@@ -76,7 +79,7 @@ export function Stats() {
             </View>
           )
         }
-        {
+        {!props.loading &&
           chunkedStatusTypes.map((types, index) =>
             <View
               key={index}

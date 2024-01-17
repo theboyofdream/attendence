@@ -3,20 +3,25 @@ import { FlatList, Image, Pressable, StyleSheet, View } from "react-native";
 import { Button, IconButton, Screen, Text } from "~components";
 import { Routes } from "~src/App";
 import { COLORS, FONTSIZE, ROUNDNESS, SPACING } from "~src/utils";
-import { useAuthStore } from "~stores";
+import { useAuthStore, useMessageHeader, useTypesOfAttendanceStatus } from "~stores";
 import { Stats } from "./Stats";
 import { handleCameraPermission } from "./cameraPermission";
 import { handleLocationPermission } from "./locationPermission";
 import { useEffect, useMemo, useState } from "react";
 import { isLocationEnabled, promptForEnableLocationIfNeeded } from 'react-native-android-location-enabler';
 import { dateFns } from "~utils";
-import { useAttendanceMarkedStatus } from "~src/stores/useAttendanceMarkedStatus";
+import { useAttendanceMarker } from "~src/stores/useAttendanceMarker";
 import { AttendanceList, AttendanceListSkeleton } from "./AttendanceList";
 
 type HomePage = NativeStackScreenProps<Routes, 'home'>
 export function HomePage({ navigation }: HomePage) {
   const { user, logout } = useAuthStore();
-  const { attendanceMarkedStatus } = useAttendanceMarkedStatus();
+  const { setMsg } = useMessageHeader()
+  const { attendanceMarkedStatus } = useAttendanceMarker();
+  const { statusTypes, refreshStatusTypes } = useTypesOfAttendanceStatus()
+
+  const [loading, setLoading] = useState(false);
+
   const [date, setDate] = useState(new Date())
   const month = useMemo(() => dateFns.getMonthInfo(date), [date])
   const year = useMemo(() => date.getFullYear(), [date]);
@@ -27,16 +32,43 @@ export function HomePage({ navigation }: HomePage) {
     let locationEnabled = await isLocationEnabled();
 
     if (!locationEnabled) {
-      let result = await promptForEnableLocationIfNeeded();
-      if (result === 'already-enabled' || result === 'enabled') {
-        locationEnabled = true;
+      try {
+        let result = await promptForEnableLocationIfNeeded();
+        if (result && (result === 'already-enabled' || result === 'enabled')) {
+          locationEnabled = true;
+        }
+      } catch (error) {
+        setMsg({
+          id: 'location',
+          title: 'Location disabled',
+          description: 'Enable your location for marking attendace.',
+          type: 'error'
+        })
+        return;
       }
     }
 
     if (cameraPermissionGranted && locationPermissionGranted && locationEnabled) {
       navigation.navigate('camera')
+    } else {
+      setMsg({
+        id: 'permission',
+        title: 'Permissions denied!',
+        description: 'Check CAMERA and LOCATION permission. Also make sure location is active.',
+        type: 'error'
+      })
     }
   }
+
+  async function loadAttendance(year: number, month: number) {
+    setLoading(true)
+    await refreshStatusTypes()
+    setLoading(false)
+  }
+
+  useEffect(() => {
+    loadAttendance(year, month.index)
+  }, [date])
 
   return (
     <Screen style={$.screen}>
@@ -61,13 +93,12 @@ export function HomePage({ navigation }: HomePage) {
         <Button leftIconName="chevron-right" style={{ minWidth: 0 }} onPress={() => setDate(dateFns.addMonth(date, 1))} />
       </View>
 
-      <Stats />
+      <Stats loading={loading} statusTypes={statusTypes} />
 
-      <Text variant="danger" style={{ margin: SPACING.md }}>Pending Approvals</Text>
-
+      <View style={{ height: SPACING.lg }} />
 
       {
-        month.daysArray.length < 1 &&
+        loading &&
         <FlatList
           ListFooterComponent={<View style={{ height: SPACING.lg * 6 }} />}
           contentContainerStyle={{ gap: SPACING.md }}
@@ -79,7 +110,7 @@ export function HomePage({ navigation }: HomePage) {
         />
       }
 
-      <FlatList
+      {!loading && <FlatList
         ListFooterComponent={<View style={{ height: SPACING.lg * 6 }} />}
         contentContainerStyle={{ gap: SPACING.md }}
         data={month.daysArray}
@@ -89,21 +120,18 @@ export function HomePage({ navigation }: HomePage) {
           <AttendanceList
             date={item}
             monthName={month.shortName}
-            dayName={dateFns.getDayInfo(new Date(year, month.index, item)).longName}
+            dayName={dateFns.getDayInfo(new Date(year, month.index, item)).shortName}
             year={year}
           />
         )}
-      />
+      />}
 
       {
         (!attendanceMarkedStatus.inTimeMarked || !attendanceMarkedStatus.outTimeMarked) &&
         <Button
           title={!attendanceMarkedStatus.inTimeMarked ? 'Mark In Time' : !attendanceMarkedStatus.outTimeMarked ? 'Mark Out Time' : 'Already Marked'}
-          // variant="infoFilled"
-          variant="dangerFilled"
-          // variant="primary"
+          variant="primary"
           style={$.markAttendanceBtn}
-          // titleStyle={{ fontSize: FONTSIZE.md }}
           leftIconName="photo-camera"
           onPress={gotoCameraPage}
         />

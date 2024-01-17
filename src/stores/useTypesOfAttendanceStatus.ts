@@ -27,12 +27,8 @@ export function useTypesOfAttendanceStatus() {
     const message = status === 200 ? json.message : statusText;
     const types = status === 200 ? parseStatusTypeJson(json.data) : parseStatusTypeJson([]);
 
-    setTimeout(() => {
-      setStatusTypes(types)
-    }, 1000);
+    setStatusTypes(types)
   }
-
-  useEffect(() => { refreshStatusTypes() }, [])
 
   return {
     statusTypes,

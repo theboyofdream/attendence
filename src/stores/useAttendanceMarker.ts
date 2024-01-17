@@ -1,7 +1,7 @@
 import { useEffect } from "react"
 import { useMMKVStorage } from "react-native-mmkv-storage"
 import fs from 'react-native-fs';
-import { storage, useAuthStore } from "~stores"
+import { storage, useAuthStore, useMessageHeader } from "~stores"
 import { URI, dateFns, fetcher } from "~utils"
 
 export type markAttendanceParams = {
@@ -19,8 +19,9 @@ type response = {
   data: string,
 }
 
-export function useAttendanceMarkedStatus() {
+export function useAttendanceMarker() {
   const { user } = useAuthStore()
+  const { setMsg } = useMessageHeader();
   const [attendanceMarkedStatus, setAttendanceMarkedStatus] = useMMKVStorage('attendance status', storage, { inTimeMarked: false, outTimeMarked: false, lastModified: new Date() })
 
   useEffect(() => {
@@ -35,10 +36,7 @@ export function useAttendanceMarkedStatus() {
 
   async function markAttendance(params: markAttendanceParams, type: 'in time' | 'out time') {
     const uri = type === 'in time' ? URI['punch in'] : URI['punch out']
-
     const image = await fs.readFile(params.imageUri, 'base64')
-    // console.log(image);
-
     const { status, statusText, data } = await fetcher.postForm(uri, {
       franchise_id: user.franchiseId,
       user_id: user.id,
@@ -68,6 +66,13 @@ export function useAttendanceMarkedStatus() {
         lastModified: new Date()
       }))
     }
+
+    setMsg({
+      id: type,
+      title: type,
+      description: message,
+      type: `${error ? 'error' : 'normal'}`,
+    })
 
     return !error
   }

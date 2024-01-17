@@ -1,4 +1,4 @@
-import { StyleSheet, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 import { Skeleton, Text } from "~components";
 import { COLORS, FONTSIZE, ROUNDNESS, SPACING, dateFns } from "~utils";
 
@@ -11,19 +11,19 @@ type AttendanceListProps = {
 export function AttendanceList(props: AttendanceListProps) {
   const { date, monthName, dayName, year } = props
   return (
-    <View style={$.list}>
+    <Pressable style={$.list}>
       <View style={$.avatar}>
         <Text style={{ fontWeight: 'bold' }}>{date < 10 ? `0${date}` : date}</Text>
       </View>
       <View style={{ flex: 1 }}>
         <Text>{date < 10 ? `0${date}` : date} {monthName} {year}</Text>
-        <Text variant="caption" muted>{dayName}</Text>
-      </View>
-      <View style={{ alignItems: 'flex-end' }}>
         <Text>Present | Approval Pending</Text>
         <Text>in time - out time</Text>
       </View>
-    </View>
+      <View style={{ alignItems: 'flex-end' }}>
+        <Text variant="caption" muted>{dayName}</Text>
+      </View>
+    </Pressable>
   )
 }
 
@@ -52,14 +52,12 @@ export function AttendanceListSkeleton() {
   return (
     <View style={[$.list]}>
       <Skeleton style={[$.avatar, { backgroundColor: COLORS.skeleton }]} />
-      <View style={{ flex: 1, gap: FONTSIZE.xxs * 0.8 }}>
-        <Skeleton style={{ height: FONTSIZE.xxs, width: (FONTSIZE.xs * 10) + r(), borderRadius: ROUNDNESS.xs }} />
-        <Skeleton style={{ height: FONTSIZE.xxs, width: (FONTSIZE.xs * 6) + r(), borderRadius: ROUNDNESS.xs }} />
+      <View style={{ flex: 1, gap: FONTSIZE.xxs * 0.5 }}>
+        <Skeleton style={{ height: FONTSIZE.xxs * 0.8, width: (FONTSIZE.xs * 10) + r(), borderRadius: ROUNDNESS.xs }} />
+        <Skeleton style={{ height: FONTSIZE.xxs * 0.8, width: (FONTSIZE.xs * 8) + r(), borderRadius: ROUNDNESS.xs }} />
+        <Skeleton style={{ height: FONTSIZE.xxs * 0.8, width: (FONTSIZE.xs * 6) + r(), borderRadius: ROUNDNESS.xs }} />
       </View>
-      {/* <View style={{ flex: 1, alignItems: 'flex-end', gap: FONTSIZE.xxs * 0.8 }}>
-        <Skeleton style={{ height: FONTSIZE.xxs, width: FONTSIZE.xs * 8, borderRadius: ROUNDNESS.xs }} />
-        <Skeleton style={{ height: FONTSIZE.xxs, width: FONTSIZE.xs * 8, borderRadius: ROUNDNESS.xs }} />
-      </View> */}
+      <Skeleton style={{ height: FONTSIZE.xxs * 0.8, width: FONTSIZE.xs * 1.2, borderRadius: ROUNDNESS.xs }} />
     </View>
   )
 }
