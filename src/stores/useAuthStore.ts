@@ -1,5 +1,5 @@
 import MMKVStorage, { useMMKVStorage } from "react-native-mmkv-storage";
-import { storage } from "~stores";
+import { storage, useMessageHeader } from "~stores";
 import { URI, dateFns, fetcher } from "~src/utils";
 
 type response = {
@@ -24,6 +24,7 @@ export type User = {
 
 export function useAuthStore() {
   const [user, setUser] = useMMKVStorage('user', storage, parseLoginJson({}));
+  const { setMsg } = useMessageHeader()
 
   async function login(email: string, password: string) {
     const { status, statusText, data } = await fetcher.postForm(URI.login, { email, password });
@@ -31,14 +32,22 @@ export function useAuthStore() {
 
     const error = !(status === 200 ? json.status == 200 : false);
     const message = status === 200 ? json.message : statusText;
-    const user = status === 200 ? parseLoginJson(json.data) : parseLoginJson(json.data);
+    const user = error ? parseLoginJson({}) : parseLoginJson(json.data);
+
+    if (error) {
+      setMsg({
+        id: 'login',
+        title: 'login',
+        description: message,
+        type: 'error'
+      })
+    }
 
     setUser(user)
   }
 
   function logout() {
     storage.clearStore();
-    // setUser(parseLoginJson({}))
   }
 
   return {
@@ -50,8 +59,8 @@ export function useAuthStore() {
 
 function parseLoginJson(json: { [key: string]: string }): User {
   return {
-    id: parseInt(json['user_id']) || 0,
-    franchiseId: parseInt(json['fk_franchise_id']) || 0,
+    id: parseInt(json['user_id'] ?? 0),
+    franchiseId: parseInt(json['fk_franchise_id'] ?? 0),
     firstname: json['user_firstname'] || '',
     lastname: json['user_lastname'] || '',
     email: json['user_email'] || '',

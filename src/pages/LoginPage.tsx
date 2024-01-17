@@ -20,6 +20,7 @@ const LOGIN_SCHEMA = Yup.object().shape({
 
 export function LoginPage() {
 	const { login } = useAuthStore()
+	const [submitting, setSubmitting] = useState(false);
 	const [isPasswordVisible, setPasswordVisibility] = useState(false);
 
 	return (
@@ -30,8 +31,10 @@ export function LoginPage() {
 				// initialValues={{ email: 'example@mail.com', password: '1234567890' }}
 				initialValues={{ email: 'inam@dhwajpartner.com', password: 'inam@123' }}
 				validationSchema={LOGIN_SCHEMA}
-				onSubmit={(form) => {
-					login(form.email, form.password)
+				onSubmit={async (form) => {
+					setSubmitting(true)
+					await login(form.email, form.password)
+					setSubmitting(false)
 				}}
 				children={
 					({ handleChange, handleBlur, handleSubmit, errors, values, touched }) => (
@@ -56,16 +59,16 @@ export function LoginPage() {
 							<Pressable style={{ flexDirection: 'row', gap: SPACING.md, alignItems: 'center' }} onPress={() => setPasswordVisibility(!isPasswordVisible)}>
 								<View style={{ position: 'relative' }}>
 									<MaterialCommunityIcons name="square-rounded" size={FONTSIZE.lg} color={COLORS[(touched.password && errors.password) ? 'dangerBackground' : 'backgroundSecondary']} style={{ position: isPasswordVisible ? 'absolute' : 'relative' }} />
-									{isPasswordVisible && <MaterialCommunityIcons name="check" size={FONTSIZE.md * 0.9} color={COLORS[(touched.password && errors.password) ? 'dangerText' : 'text']} style={{ padding: 3, paddingVertical: 4 }} />}
+									{isPasswordVisible && <MaterialCommunityIcons name="check" size={FONTSIZE.md * 0.7} color={COLORS[(touched.password && errors.password) ? 'dangerText' : 'text']} style={{ padding: 3, paddingVertical: 4 }} />}
 								</View>
 								<Text>Show Password</Text>
 							</Pressable>
-
 							<Button style={$.submitButton} title="login" variant="primary" onPress={() => handleSubmit()} />
 						</View>
 					)
 				}
 			/>
+			<Text style={$.submitText}>{submitting && 'Logging in...'}</Text>
 		</Screen>
 	)
 }
@@ -90,5 +93,9 @@ const $ = StyleSheet.create({
 	},
 	submitButton: {
 		alignSelf: 'flex-end'
+	},
+	submitText: {
+		bottom: SPACING.lg * 2,
+		position: 'absolute'
 	}
 })
