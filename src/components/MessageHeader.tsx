@@ -1,60 +1,88 @@
 import { useEffect, useRef } from "react";
-import { Animated, StyleSheet, View } from "react-native";
+import { Animated, Easing, Pressable, StyleSheet, View } from "react-native";
 import { MessageType, useMessageHeader } from "~stores";
-import { COLORS, FONTSIZE, SPACING } from "~utils";
-import { IconButton } from "./IconButton";
+import { COLORS, ROUNDNESS, SPACING } from "~utils";
 import { Text } from "./Text";
+import { Button } from "./Button";
 
-const AnimatedText = Animated.createAnimatedComponent(Text)
-const AnimatedIconButton = Animated.createAnimatedComponent(IconButton)
 export function MessageHeader() {
   const { msg, setMsg } = useMessageHeader();
-  const positionY = useRef(new Animated.Value(0)).current;
-  const opacity = useRef(new Animated.Value(0)).current;
+  const positionY = useRef(new Animated.Value(-150)).current;
 
   function animateHeader(animateType: 'in' | 'out' = 'in') {
-    Animated.sequence([
-      Animated.timing(opacity, {
-        toValue: animateType === 'in' ? 1 : 0,
-        duration: 300,
-        useNativeDriver: true
-      }),
-      Animated.timing(positionY, {
-        toValue: animateType === 'in' ? 0 : -150,
-        duration: 300,
-        useNativeDriver: true
-      })
-    ]).start()
+    Animated.timing(positionY, {
+      toValue: animateType === 'in' ? 0 : -150,
+      duration: 300,
+      useNativeDriver: false
+    }).start()
+  }
+
+  const $ = styles(msg?.type || 'normal')
+
+  function close() {
+    setMsg(null)
+  }
+  function action() {
+    if (msg && msg.action) {
+      msg.action(msg.id)
+    }
   }
 
   useEffect(() => {
     animateHeader(msg ? 'in' : 'out')
+    let closeTimeout = setTimeout(() => {
+      if (msg && msg.type === 'normal') { setMsg(null) }
+    }, 3000);
   }, [msg])
 
   return (
-    <Animated.View style={{
-      backgroundColor: COLORS.background,
-      height: 100,
-      flexDirection: 'row',
-      padding: SPACING.md,
-      display: 'flex',
-      transform: [
-        { translateY: positionY }
-      ]
-    }}>
+    <Animated.View style={[$.container, { transform: [{ translateY: positionY }] }]}>
       <View style={{ flex: 1 }}>
-        <AnimatedText variant="subTitle" style={{ opacity }}> {msg?.title}</AnimatedText>
-        <AnimatedText style={{ opacity }}>{msg?.description}</AnimatedText>
+        <Text variant="subTitle" style={[$.text, { textTransform: 'uppercase' }]}> {msg?.title}</Text>
+        <Text style={$.text}>{msg?.description}</Text>
+        <View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
+          <Button
+            title={"close"}
+            titleStyle={{ color: $.text.color, fontWeight: 'bold' }}
+            onPress={close}
+            style={{ transform: [{ scale: 0.8 }] }}
+          />
+          {msg && msg.actionName && msg.action &&
+            <Button
+              title={msg.actionName}
+              variant={msg?.type === 'normal' ? 'secondary' : "danger" || 'secondary'}
+              titleStyle={{ fontWeight: 'bold' }}
+              onPress={action}
+              style={{ transform: [{ scale: 0.8 }] }}
+            />}
+        </View>
       </View>
-      <AnimatedIconButton iconName="close" style={{ opacity }} iconStyle={{ size: FONTSIZE.lg }} onPress={() => setMsg(null)} />
     </Animated.View>
   )
 }
 
 
-const $ = (type: MessageType) => StyleSheet.create({
-  container: {
-  },
-  title: {},
-  description: {}
-})
+const styles = (type: MessageType) => {
+  return StyleSheet.create({
+    container: {
+      position: 'absolute',
+      top: 0,
+      maxWidth: 400,
+      alignSelf: 'center',
+      borderRadius: ROUNDNESS.lg,
+      backgroundColor: COLORS[type === 'normal' ? 'text' : 'dangerText'],
+      borderWidth: 1,
+      borderColor: COLORS[type === 'normal' ? 'background' : 'dangerBackground'] + '80',
+      shadowColor: COLORS[type === 'normal' ? 'background' : 'dangerBackground'],
+      elevation: 4,
+      flexDirection: 'row',
+      margin: SPACING.lg,
+      padding: SPACING.md,
+      paddingLeft: SPACING.lg,
+      paddingRight: SPACING.sm
+    },
+    text: {
+      color: COLORS[type === 'normal' ? 'background' : 'dangerBackground'],
+    }
+  })
+}
