@@ -20,7 +20,8 @@ export function MessageHeader() {
   const $ = styles(msg?.type || 'normal')
 
   function close() {
-    setMsg(null)
+    animateHeader('out')
+    setTimeout(() => setMsg(null), 350)
   }
   function action() {
     if (msg && msg.action) {
@@ -30,15 +31,20 @@ export function MessageHeader() {
 
   useEffect(() => {
     animateHeader(msg ? 'in' : 'out')
+
     let closeTimeout = setTimeout(() => {
       if (msg && msg.type === 'normal') { setMsg(null) }
     }, 3000);
+
+    return () => {
+      clearTimeout(closeTimeout)
+    }
   }, [msg])
 
   return (
     <Animated.View style={[$.container, { transform: [{ translateY: positionY }] }]}>
       <View style={{ flex: 1 }}>
-        <Text variant="subTitle" style={[$.text, { textTransform: 'uppercase' }]}> {msg?.title}</Text>
+        <Text variant="subTitle" style={[$.text, { textTransform: 'uppercase' }]}>{msg?.title}</Text>
         <Text style={$.text}>{msg?.description}</Text>
         <View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
           <Button
