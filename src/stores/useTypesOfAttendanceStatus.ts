@@ -39,8 +39,12 @@ export function useTypesOfAttendanceStatus() {
 
 function parseStatusTypeJson(json: { [key: string]: string }[]) {
   let arr = json as unknown as statusTypes[]
+  // let object = {} as {[key:number]:statusTypes}
   if (arr.length > 0) {
     arr = arr.sort((a, b) => a.id - b.id)
+    // arr.forEach(statusType=>{
+    //   object[statusType.id] = statusType
+    // })
     return arr as unknown as statusTypes[]
   }
   return []

@@ -36,27 +36,27 @@ export function useAttendanceMarker() {
 
   async function markAttendance(params: markAttendanceParams, type: 'in time' | 'out time') {
     const uri = type === 'in time' ? URI['punch in'] : URI['punch out']
-    const image = await fs.readFile(params.imageUri, 'base64')
+    const base64Image = await fs.readFile(params.imageUri, 'base64')
     const { status, statusText, data } = await fetcher.postForm(uri, {
       franchise_id: user.franchiseId,
       user_id: user.id,
       date: dateFns.stringifyDate(params.datetime, 'date'),
       time_in: dateFns.stringifyDate(params.datetime, 'time'),
-      face_capture_pic: image,
+      face_capture_pic: base64Image,
       location: params.location.address,
       latitude: params.location.latitude,
       longitude: params.location.longitude,
-      status: 'present'
+      status: '2'
     }, {
       headers: { 'Content-Type': 'multipart/form-data' }
     })
     const json = data as response;
 
     const error = !(status === 200 ? json.status == 200 : false);
-    const message = status < 500 ? json.message : statusText;
+    const message = status === 200 ? json.status === 200 ? json.data : json.message : statusText;
     const response = json.data
 
-    console.log({ status, statusText, data, json, error })
+    // console.log({ status, statusText, data, json, error })
 
     if (!error) {
       const o = type === 'in time' ? { inTimeMarked: true } : { outTimeMarked: true }
@@ -82,27 +82,3 @@ export function useAttendanceMarker() {
     markAttendance
   }
 }
-
-
-async function base64File(url: string) {
-  const data = await fetch(url);
-  const blob = await data.blob();
-  const reader = new FileReader();
-  let base64Data: string | ArrayBuffer = ''
-  reader.readAsDataURL(blob);
-  reader.onloadend = () => {
-    base64Data = reader.result;
-  };
-  return base64Data;
-}
-
-/**
-franchise_id:8
-user_id:24
-date:2023-11-02
-time_in:17:00:00
-location:Thane, Maharashtra
-latitude:39.12345
-longitude:72.12345
-status:present
- */
