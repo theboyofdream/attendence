@@ -11,19 +11,44 @@ export const dateFns = {
       hour12: true,
     });
   },
+  toReadable: (date: Date, type: 'date' | 'time' | 'datetime' = 'datetime') => {
+    let options = {} as Intl.DateTimeFormatOptions
+    switch (type) {
+      case 'time': {
+        options = { hour: '2-digit', minute: '2-digit', hour12: true }
+        break;
+      }
+      case 'date': {
+        options = { year: 'numeric', month: 'short', day: '2-digit' }
+        break;
+      }
+      case 'datetime': {
+        options = {
+          year: 'numeric',
+          month: 'short',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: true,
+        }
+      }
+    }
+    return dateFns.format(date, options);
+  },
   //
   parseDate: (serverDate: string, type: 'date' | 'time' | 'datetime' = 'datetime') => {
     let result = null;
-    if (serverDate && serverDate.length > 10) {
-      let [date, time] = serverDate.split(" ")
-      let [year, month, day] = date.split("-") as unknown as number[]
-      let [hour, minute, second] = time.split(":") as unknown as number[]
-
+    if (serverDate && serverDate.length > 1) {
       if (type === 'datetime') {
+        let [date, time] = serverDate.split(" ")
+        let [year, month, day] = date.split("-") as unknown as number[]
+        let [hour, minute, second] = time.split(":") as unknown as number[]
         result = new Date(year, month - 1, day, hour, minute, second);
       } else if (type === 'date') {
+        let [year, month, day] = serverDate.split("-") as unknown as number[]
         result = new Date(year, month - 1, day, 0, 0, 0);
       } else if (type === 'time') {
+        let [hour, minute, second] = serverDate.split(":") as unknown as number[]
         let now = new Date();
         result = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hour, minute, second);
       }
