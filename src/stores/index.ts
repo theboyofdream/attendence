@@ -6,3 +6,4 @@ export * from './useAuthStore';
 export * from './useTypesOfAttendanceStatus'
 export * from './useMessageHeader'
 export * from './useAttendanceMarker'
+export * from './useAttendanceList'

@@ -2,14 +2,15 @@ import { useMemo, useRef, useState } from "react";
 import { ScrollView, StyleSheet, View, ViewStyle, Animated } from "react-native";
 import { Skeleton, Text } from "~components";
 import { useDimension } from "~src/hooks";
-import { statusTypes, useTypesOfAttendanceStatus } from "~stores";
+import { statusTypes } from "~stores";
 import { COLORS, ROUNDNESS, SPACING } from "~utils";
 
 const indicatorSize = 6;
 
+export type statsStatusType = statusTypes & { count: number }
 type StatsProps = {
   loading: boolean;
-  statusTypes: statusTypes[]
+  statusTypes: statsStatusType[]
 }
 export function Stats(props: StatsProps) {
   const chunkedStatusTypes = useMemo(() => {
@@ -93,7 +94,7 @@ export function Stats(props: StatsProps) {
                 types.map(type =>
                   <View style={style} key={type.id}>
                     <Text variant='caption'>{type.name}</Text>
-                    <Text>{type.id}</Text>
+                    <Text>{type.count || 0}</Text>
                   </View>
                 )
               }

@@ -4,12 +4,14 @@ import { COLORS, FONTSIZE, ROUNDNESS, SPACING, dateFns } from "~utils";
 
 type AttendanceListProps = {
   date: number;
-  monthName: string;
   dayName: string;
+  monthName: string;
   year: number;
+  punchIn: { time: string, approvalStatusName: string },
+  punchOut: { time: string, approvalStatusName: string }
 }
 export function AttendanceList(props: AttendanceListProps) {
-  const { date, monthName, dayName, year } = props
+  const { date, monthName, dayName, year, punchIn, punchOut } = props
   return (
     <Pressable style={$.list}>
       <View style={$.avatar}>
@@ -17,8 +19,14 @@ export function AttendanceList(props: AttendanceListProps) {
       </View>
       <View style={{ flex: 1 }}>
         <Text>{date < 10 ? `0${date}` : date} {monthName} {year}</Text>
-        <Text>Present | Approval Pending</Text>
-        <Text>in time - out time</Text>
+        {/* <Text>{punchIn.time} {punchIn.approvalStatusName}</Text>
+        <Text>{punchOut.time} {punchOut.approvalStatusName}</Text> */}
+        {
+          punchIn.approvalStatusName == punchOut.approvalStatusName ?
+            <Text>{punchIn.approvalStatusName}</Text> :
+            <Text>{punchIn.approvalStatusName} | {punchOut.approvalStatusName}</Text>
+        }
+        <Text>{punchIn.time} - {punchOut.time}</Text>
       </View>
       <View style={{ alignItems: 'flex-end' }}>
         <Text variant="caption" muted>{dayName}</Text>

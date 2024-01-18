@@ -3,8 +3,8 @@ import { FlatList, Image, Pressable, StyleSheet, View } from "react-native";
 import { Button, IconButton, Screen, Text } from "~components";
 import { Routes } from "~src/App";
 import { COLORS, FONTSIZE, ROUNDNESS, SPACING } from "~src/utils";
-import { useAuthStore, useMessageHeader, useTypesOfAttendanceStatus } from "~stores";
-import { Stats } from "./Stats";
+import { statusTypes, useAttendanceList, useAuthStore, useMessageHeader, useTypesOfAttendanceStatus } from "~stores";
+import { Stats, statsStatusType } from "./Stats";
 import { handleCameraPermission } from "./cameraPermission";
 import { handleLocationPermission } from "./locationPermission";
 import { useEffect, useMemo, useState } from "react";
@@ -19,6 +19,27 @@ export function HomePage({ navigation }: HomePage) {
   const { setMsg } = useMessageHeader()
   const { attendanceMarkedStatus } = useAttendanceMarker();
   const { statusTypes, refreshStatusTypes } = useTypesOfAttendanceStatus()
+
+  const { attendanceList, getAttendanceList } = useAttendanceList()
+
+  const statusTypesObject = useMemo(() => {
+    let obj = {} as { [key: number]: statsStatusType }
+    statusTypes.forEach(statusType => { obj[statusType.id] = { ...statusType, count: 0 } })
+    attendanceList.forEach(list => {
+      if (list.punchIn.approvalStatus == list.punchOut.approvalStatus) {
+        obj[list.punchIn.approvalStatus].count += 1
+        return
+      }
+
+      if (obj[list.punchIn.approvalStatus]) {
+        obj[list.punchIn.approvalStatus].count += 1
+      }
+      if (obj[list.punchOut.approvalStatus]) {
+        obj[list.punchOut.approvalStatus].count += 1
+      }
+    })
+    return obj;
+  }, [statusTypes, attendanceList])
 
   const [loading, setLoading] = useState(false);
 
@@ -63,6 +84,7 @@ export function HomePage({ navigation }: HomePage) {
   async function loadAttendance(year: number, month: number) {
     setLoading(true)
     await refreshStatusTypes()
+    await getAttendanceList(year, month)
     setLoading(false)
   }
 
@@ -75,7 +97,7 @@ export function HomePage({ navigation }: HomePage) {
 
       <View style={$.header}>
 
-        <Image source={{ uri: user.picture }} style={$.image} />
+        <Image source={{ uri: user.picture }} style={$.avatar} />
         <View style={{ flex: 1 }}>
           <View style={{ flexDirection: 'row', gap: SPACING.sm }}>
             <Text variant="title" style={{ textTransform: 'capitalize' }}>{user.firstname} {user.lastname}</Text>
@@ -93,7 +115,7 @@ export function HomePage({ navigation }: HomePage) {
         <Button leftIconName="chevron-right" style={{ minWidth: 0 }} onPress={() => setDate(dateFns.addMonth(date, 1))} />
       </View>
 
-      <Stats loading={loading} statusTypes={statusTypes} />
+      <Stats loading={loading} statusTypes={Object.values(statusTypesObject)} />
 
       <View style={{ height: SPACING.lg }} />
 
@@ -110,24 +132,46 @@ export function HomePage({ navigation }: HomePage) {
         />
       }
 
-      {!loading && <FlatList
+      {!loading && attendanceList.length > 0 && <FlatList
         ListFooterComponent={<View style={{ height: SPACING.lg * 6 }} />}
         contentContainerStyle={{ gap: SPACING.md }}
-        data={month.daysArray}
-        keyExtractor={(item) => `${item}`}
+        data={attendanceList.reverse()}
+        keyExtractor={(item, index) => `${index}`}
         showsVerticalScrollIndicator={false}
-        renderItem={({ item }) => (
-          <AttendanceList
-            date={item}
-            monthName={month.shortName}
-            dayName={dateFns.getDayInfo(new Date(year, month.index, item)).shortName}
-            year={year}
-          />
-        )}
+        renderItem={({ item }) => {
+          // console.log({ item })
+          return (
+            <>
+              {item.date &&
+                <AttendanceList
+                  date={item.date.getDate()}
+                  monthName={month.shortName}
+                  dayName={dateFns.getDayInfo(item.date).shortName}
+                  year={year}
+                  punchIn={{
+                    time: item.punchIn.time ? dateFns.toReadable(item.punchIn.time, 'time') : '',
+                    approvalStatusName: statusTypesObject[item.punchIn.approvalStatus].name || ''
+                  }}
+                  punchOut={{
+                    time: item.punchOut.time ? dateFns.toReadable(item.punchOut.time, 'time') : '',
+                    approvalStatusName: statusTypesObject[item.punchIn.approvalStatus].name || ''
+                  }}
+                />
+              }
+            </>)
+        }}
       />}
 
       {
-        (!attendanceMarkedStatus.inTimeMarked || !attendanceMarkedStatus.outTimeMarked) &&
+        !loading && attendanceList.length < 1 &&
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', gap: SPACING.lg }}>
+          <Image source={require('src/assets/not-found.png')} style={$.notFoundImage} />
+          <Text>Not Found anything!</Text>
+        </View>
+      }
+
+      {
+        (!attendanceMarkedStatus.inTimeMarked || !attendanceMarkedStatus.outTimeMarked) && !loading &&
         <Button
           title={!attendanceMarkedStatus.inTimeMarked ? 'Mark In Time' : !attendanceMarkedStatus.outTimeMarked ? 'Mark Out Time' : 'Already Marked'}
           variant="primary"
@@ -161,7 +205,7 @@ const $ = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: COLORS.transparent
   },
-  image: {
+  avatar: {
     width: 40,
     aspectRatio: 1,
     borderRadius: ROUNDNESS.lg,
@@ -173,5 +217,11 @@ const $ = StyleSheet.create({
     margin: SPACING.lg,
     marginRight: SPACING.lg * 1.5,
     alignSelf: 'flex-end'
-  }
+  },
+  notFoundImage: {
+    minWidth: 100,
+    minHeight: 100,
+    maxWidth: 200,
+    maxHeight: 200,
+  },
 })

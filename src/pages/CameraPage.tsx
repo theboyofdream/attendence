@@ -9,7 +9,7 @@ import { Camera, useCameraDevice, useCameraFormat } from "react-native-vision-ca
 import { Button, IconButton, Text } from "~components";
 import { Routes } from "~src/App";
 import { useDimension } from "~src/hooks";
-import { markAttendanceParams, useAttendanceMarker } from "~src/stores";
+import { markAttendanceParams, useAttendanceMarker, useMessageHeader } from "~src/stores";
 import { COLORS, FONTSIZE, ROUNDNESS, SPACING, URI, dateFns, fetcher } from "~src/utils";
 import { useAuthStore } from "~stores";
 
@@ -17,6 +17,7 @@ type CameraPageProps = NativeStackScreenProps<Routes, 'camera'>;
 export function CameraPage({ navigation }: CameraPageProps) {
   const { user } = useAuthStore()
   const { width, height } = useDimension();
+  const { setMsg } = useMessageHeader()
   const { markAttendance, attendanceMarkedStatus } = useAttendanceMarker()
 
   const [submitting, setSubmitting] = useState(false)
@@ -63,7 +64,14 @@ export function CameraPage({ navigation }: CameraPageProps) {
 
     }
     Geolocation.getCurrentPosition(async position => {
-      if (position && position['mocked'] && position['mocked'] === false) return;
+      if (position && position['mocked'] === false) {
+        setMsg({
+          id: 'mocked',
+          title: 'fake location detected',
+          description: 'You seem to using fake location app. Please disable.',
+          type: 'error'
+        })
+      };
       setGeolocation(position)
       await getDateTime(position.coords.latitude, position.coords.longitude)
     }, console.error)
