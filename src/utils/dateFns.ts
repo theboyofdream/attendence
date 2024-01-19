@@ -64,7 +64,8 @@ export const dateFns = {
       result += ' '
     }
     if (type === 'time' || type === 'datetime') {
-      result += `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`
+      // result += `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`
+      result += `${date.getHours()}:${date.getMinutes()}:00}`
     }
     return result;
   },
