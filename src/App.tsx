@@ -30,7 +30,6 @@ export default function App(): JSX.Element {
   }, [])
 
   return (
-    // <GlobalProvider>
     <SafeAreaView style={{ flex: 1 }}>
       <StatusBar
         backgroundColor={COLORS.background}
@@ -38,18 +37,17 @@ export default function App(): JSX.Element {
       />
       <NavigationContainer>
         <Stack.Navigator screenOptions={options}>
-          {!user.loggedIn ?
-            <Stack.Screen name='login' component={LoginPage} />
-            :
+          {user.loggedIn ?
             <>
               <Stack.Screen name='home' component={HomePage} />
               <Stack.Screen name='camera' component={CameraPage} />
             </>
+            :
+            <Stack.Screen name='login' component={LoginPage} />
           }
         </Stack.Navigator>
       </NavigationContainer>
       <MessageHeader />
     </SafeAreaView>
-    // </GlobalProvider>
   )
 }

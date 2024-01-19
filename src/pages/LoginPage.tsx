@@ -26,7 +26,7 @@ export function LoginPage() {
 	return (
 		<Screen style={$.screen}>
 			<Text variant="title">ATTENDENCE LOGIN</Text>
-			<Image source={require('src/assets/login.jpg')} style={$.loginImage} />
+			<Image source={require('assets/illustrations/login.png')} style={$.loginImage} />
 			<Formik
 				// initialValues={{ email: 'example@mail.com', password: '1234567890' }}
 				initialValues={{ email: 'inam@dhwajpartner.com', password: 'inam@123' }}

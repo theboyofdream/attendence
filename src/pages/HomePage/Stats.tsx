@@ -50,6 +50,7 @@ export function Stats(props: StatsProps) {
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
+        style={{ margin: 0 }}
         decelerationRate={0}
         snapToAlignment="start"
         snapToInterval={pageWidth}
@@ -71,7 +72,7 @@ export function Stats(props: StatsProps) {
             >
               {
                 subArray.map(i =>
-                  <View style={[style]} key={i}>
+                  <View style={[style, { justifyContent: 'space-between' }]} key={i}>
                     <Skeleton style={{ width: '60%', height: SPACING.md * 0.8, borderRadius: ROUNDNESS.xs, backgroundColor: COLORS.textMuted + '80' }} />
                     <Skeleton style={{ width: '20%', height: SPACING.lg * 1.2, borderRadius: ROUNDNESS.xs, backgroundColor: COLORS.textMuted + '80' }} />
                   </View>
@@ -93,7 +94,7 @@ export function Stats(props: StatsProps) {
               {
                 types.map(type =>
                   <View style={style} key={type.id}>
-                    <Text variant='caption'>{type.name}</Text>
+                    <Text variant='caption' style={{ flex: 1 }}>{type.name}</Text>
                     <Text>{type.count || 0}</Text>
                   </View>
                 )
@@ -119,7 +120,7 @@ const $ = StyleSheet.create({
     minHeight: 80,
     backgroundColor: COLORS.backgroundSecondary,
     padding: SPACING.lg,
-    justifyContent: 'space-between'
+    // justifyContent: 'space-between',
   },
   pageIndicator: {
     minWidth: indicatorSize,

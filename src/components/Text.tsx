@@ -25,17 +25,18 @@ export function Text(props: TextProps & TypologyProps) {
 const $ = StyleSheet.create({
   base: {
     color: COLORS.text,
-    fontSize: FONTSIZE.xs
+    fontSize: FONTSIZE.xs,
+    fontFamily: 'Poppins-Regular'
   },
   title: {
     fontSize: FONTSIZE.lg,
     letterSpacing: SPACING.xs * 0.7,
-    fontWeight: 'bold'
+    fontFamily: 'Poppins-Medium',
   },
   subTitle: {
     fontSize: FONTSIZE.md,
     letterSpacing: SPACING.xs * 0.7,
-    fontWeight: 'bold'
+    fontFamily: 'Poppins-Medium',
   },
   paragraph: {},
   caption: {

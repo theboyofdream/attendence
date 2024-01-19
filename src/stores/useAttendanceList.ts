@@ -49,15 +49,15 @@ export function useAttendanceList() {
       year,
       month: `${month + 1 < 10 && '0'}${month + 1}`
     })
-    console.log(data)
+    // console.log(data)
 
     const json = data as response
 
-    const error = !(status === 200 ? json.status == 200 : false);
+    const error = !(status === 200 ? (json.status == 200 || json.status == 404) : false);
     const message = status < 500 ? json.message : statusText;
     const list = parseAttendanceListJson(json.data)
 
-    console.log(list)
+    // console.log({ list })
 
     if (error) {
       setMsg({

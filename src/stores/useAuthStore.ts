@@ -1,6 +1,7 @@
 import MMKVStorage, { useMMKVStorage } from "react-native-mmkv-storage";
 import { storage, useMessageHeader } from "~stores";
 import { URI, dateFns, fetcher } from "~src/utils";
+import { useEffect, useMemo, useState } from "react";
 
 type response = {
   status: number,
@@ -23,7 +24,7 @@ export type User = {
 }
 
 export function useAuthStore() {
-  const [user, setUser] = useMMKVStorage('user', storage, parseLoginJson({}));
+  const [user, storeUser] = useMMKVStorage('user', storage, parseLoginJson({}));
   const { setMsg } = useMessageHeader()
 
   async function login(email: string, password: string) {
@@ -43,7 +44,7 @@ export function useAuthStore() {
       })
     }
 
-    setUser(user)
+    storeUser(user)
   }
 
   function logout() {
@@ -51,7 +52,7 @@ export function useAuthStore() {
   }
 
   return {
-    user,
+    user: { ...user, dateOfJoining: new Date(user.dateOfJoining || new Date()) },
     login,
     logout
   }
@@ -65,7 +66,7 @@ function parseLoginJson(json: { [key: string]: string }): User {
     lastname: json['user_lastname'] || '',
     email: json['user_email'] || '',
     mobile: json['user_mob'] || '',
-    dateOfJoining: dateFns.parseDate(json['date_of_joining']),
+    dateOfJoining: dateFns.parseDate(json['date_of_joining'], 'date'),
     picture: json['user_pic'] || 'https://placehold.jp/100x100.png',
     inTime: dateFns.parseDate(json['in_time'], 'time'),
     outTime: dateFns.parseDate(json['out_time'], 'time'),
