@@ -37,26 +37,37 @@ export function useAttendanceMarker() {
   async function markAttendance(params: markAttendanceParams, type: 'in time' | 'out time') {
     const uri = type === 'in time' ? URI['punch in'] : URI['punch out']
     const base64Image = await fs.readFile(params.imageUri, 'base64')
-    const { status, statusText, data } = await fetcher.postForm(uri, {
+
+    let postBody: { [key: string]: any } = {
       franchise_id: user.franchiseId,
       user_id: user.id,
       date: dateFns.stringifyDate(params.datetime, 'date'),
-      time_in: dateFns.stringifyDate(params.datetime, 'time'),
       face_capture_pic: base64Image,
       location: params.location.address,
       latitude: params.location.latitude,
       longitude: params.location.longitude,
       status: '2'
-    }, {
+    }
+
+    if (type === 'in time') {
+      postBody['time_in'] = dateFns.stringifyDate(params.datetime, 'time')
+    } else {
+      postBody['time_out'] = dateFns.stringifyDate(params.datetime, 'time')
+    }
+
+    // console.log(postBody)
+
+    const { status, statusText, data } = await fetcher.postForm(uri, postBody, {
       headers: { 'Content-Type': 'multipart/form-data' }
     })
     const json = data as response;
 
     const error = !(status === 200 ? json.status == 200 : false);
-    const message = status === 200 ? json.status === 200 ? json.data : json.message : statusText;
+    const message = status === 200 ? json.status == 200 ? json.data : json.message : statusText;
     const response = json.data
 
-    // console.log({ status, statusText, data, json, error })
+    // console.log({ data })
+    // console.log({ status, statusText, error, message, response })
 
     if (!error) {
       const o = type === 'in time' ? { inTimeMarked: true } : { outTimeMarked: true }
@@ -79,6 +90,7 @@ export function useAttendanceMarker() {
 
   return {
     attendanceMarkedStatus,
+    setAttendanceMarkedStatus,
     markAttendance
   }
 }

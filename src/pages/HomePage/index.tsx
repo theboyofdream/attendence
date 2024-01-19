@@ -1,5 +1,5 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { FlatList, Image, Pressable, StyleSheet, View } from "react-native";
+import { FlatList, Image, Pressable, RefreshControl, StyleSheet, View } from "react-native";
 import { Button, IconButton, Screen, Text } from "~components";
 import { Routes } from "~src/App";
 import { COLORS, FONTSIZE, ROUNDNESS, SPACING } from "~src/utils";
@@ -12,12 +12,14 @@ import { isLocationEnabled, promptForEnableLocationIfNeeded } from 'react-native
 import { dateFns } from "~utils";
 import { useAttendanceMarker } from "~src/stores/useAttendanceMarker";
 import { AttendanceList, AttendanceListSkeleton } from "./AttendanceList";
+import { useIsFocused } from "@react-navigation/native";
 
 type HomePage = NativeStackScreenProps<Routes, 'home'>
 export function HomePage({ navigation }: HomePage) {
   const { user, logout } = useAuthStore();
-  const { setMsg } = useMessageHeader()
-  const { attendanceMarkedStatus } = useAttendanceMarker();
+  const { setMsg } = useMessageHeader();
+  const isScreenFocused = useIsFocused()
+  const { attendanceMarkedStatus, setAttendanceMarkedStatus } = useAttendanceMarker();
   const { statusTypes, refreshStatusTypes } = useTypesOfAttendanceStatus()
 
   const { attendanceList, getAttendanceList } = useAttendanceList()
@@ -26,7 +28,16 @@ export function HomePage({ navigation }: HomePage) {
     let obj = {} as { [key: number]: statsStatusType }
     statusTypes.forEach(statusType => { obj[statusType.id] = { ...statusType, count: 0 } })
     attendanceList.forEach(list => {
-      if (list.punchIn.approvalStatus == list.punchOut.approvalStatus) {
+
+      if (list.date?.getDate() == (new Date()).getDate()) {
+        setAttendanceMarkedStatus({
+          inTimeMarked: list.punchIn.time != null,
+          outTimeMarked: list.punchOut.time != null,
+          lastModified: new Date()
+        })
+      }
+
+      if (list.punchIn.approvalStatus === list.punchOut.approvalStatus) {
         obj[list.punchIn.approvalStatus].count += 1
         return
       }
@@ -89,8 +100,12 @@ export function HomePage({ navigation }: HomePage) {
   }
 
   useEffect(() => {
-    loadAttendance(year, month.index)
-  }, [date])
+    if (isScreenFocused) {
+      loadAttendance(year, month.index)
+    }
+  }, [date, isScreenFocused])
+
+  // console.log({ joiningdate: user.dateOfJoining })
 
   return (
     <Screen style={$.screen}>
@@ -100,19 +115,19 @@ export function HomePage({ navigation }: HomePage) {
         <Image source={{ uri: user.picture }} style={$.avatar} />
         <View style={{ flex: 1 }}>
           <View style={{ flexDirection: 'row', gap: SPACING.sm }}>
-            <Text variant="title" style={{ textTransform: 'capitalize' }}>{user.firstname} {user.lastname}</Text>
+            <Text variant="title" style={{ textTransform: 'capitalize', height: FONTSIZE.lg * 1.2 }}>{user.firstname} {user.lastname}</Text>
             <Text variant="caption" muted>#{user.id}</Text>
           </View>
-          <Text variant="caption">Joining Date: {user.dateOfJoining?.toLocaleDateString()}</Text>
+          <Text variant="caption" style={{ backgroundColor: '#00000000' }}>Joining Date: {user.dateOfJoining ? dateFns.toReadable(user.dateOfJoining, 'date') : ''}</Text>
         </View>
         <IconButton iconName="logout" onPress={logout} />
       </View>
 
 
       <View style={$.nav}>
-        <Button leftIconName="chevron-left" style={{ minWidth: 0 }} onPress={() => setDate(dateFns.addMonth(date, -1))} />
+        <Button leftIconName="chevron-left" style={{ minWidth: 0 }} onPress={() => setDate(dateFns.addMonth(date, -1))} disabled={loading} />
         <Text style={{ fontWeight: 'bold' }}>{month.longName}, {date.getFullYear()}</Text>
-        <Button leftIconName="chevron-right" style={{ minWidth: 0 }} onPress={() => setDate(dateFns.addMonth(date, 1))} />
+        <Button leftIconName="chevron-right" style={{ minWidth: 0 }} onPress={() => setDate(dateFns.addMonth(date, 1))} disabled={loading} />
       </View>
 
       <Stats loading={loading} statusTypes={Object.values(statusTypesObject)} />
@@ -132,52 +147,62 @@ export function HomePage({ navigation }: HomePage) {
         />
       }
 
-      {!loading && attendanceList.length > 0 && <FlatList
-        ListFooterComponent={<View style={{ height: SPACING.lg * 6 }} />}
-        contentContainerStyle={{ gap: SPACING.md }}
-        data={attendanceList.reverse()}
-        keyExtractor={(item, index) => `${index}`}
-        showsVerticalScrollIndicator={false}
-        renderItem={({ item }) => {
-          // console.log({ item })
-          return (
-            <>
-              {item.date &&
-                <AttendanceList
-                  date={item.date.getDate()}
-                  monthName={month.shortName}
-                  dayName={dateFns.getDayInfo(item.date).shortName}
-                  year={year}
-                  punchIn={{
-                    time: item.punchIn.time ? dateFns.toReadable(item.punchIn.time, 'time') : '',
-                    approvalStatusName: statusTypesObject[item.punchIn.approvalStatus].name || ''
-                  }}
-                  punchOut={{
-                    time: item.punchOut.time ? dateFns.toReadable(item.punchOut.time, 'time') : '',
-                    approvalStatusName: statusTypesObject[item.punchIn.approvalStatus].name || ''
-                  }}
-                />
-              }
-            </>)
-        }}
-      />}
+      {!loading && attendanceList.length > 0 &&
+        <FlatList
+          style={{ flex: 1, flexGrow: 1 }}
+          ListFooterComponent={<View style={{ height: SPACING.lg * 6 }} />}
+          contentContainerStyle={{ gap: SPACING.md, flexGrow: 1 }}
+          data={attendanceList.reverse()}
+          keyExtractor={(item, index) => `${index}`}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl refreshing={loading} onRefresh={() => loadAttendance(year, month.index)} />
+          }
+          renderItem={({ item }) => {
+            // console.log({ item })
+            return (
+              <>
+                {item.date &&
+                  <AttendanceList
+                    date={item.date.getDate()}
+                    monthName={month.shortName}
+                    dayName={dateFns.getDayInfo(item.date).shortName}
+                    year={year}
+                    punchIn={{
+                      time: item.punchIn.time ? dateFns.toReadable(item.punchIn.time, 'time') : '',
+                      approvalStatusName: statusTypesObject[item.punchIn.approvalStatus]?.name || ''
+                    }}
+                    punchOut={{
+                      time: item.punchOut.time ? dateFns.toReadable(item.punchOut.time, 'time') : '',
+                      approvalStatusName: statusTypesObject[item.punchIn.approvalStatus]?.name || ''
+                    }}
+                  />
+                }
+              </>)
+          }}
+        />
+      }
 
       {
         !loading && attendanceList.length < 1 &&
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', gap: SPACING.lg }}>
-          <Image source={require('src/assets/not-found.png')} style={$.notFoundImage} />
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', gap: SPACING.lg, marginBottom: SPACING.lg * 5 }}>
+          <Image source={require('assets/illustrations/not-found.png')} style={$.notFoundImage} />
           <Text>Not Found anything!</Text>
+          <View>
+            <Button title="refresh" variant="secondary" onPress={() => loadAttendance(year, month.index)} />
+          </View>
         </View>
       }
 
       {
-        (!attendanceMarkedStatus.inTimeMarked || !attendanceMarkedStatus.outTimeMarked) && !loading &&
+        (!attendanceMarkedStatus.inTimeMarked || !attendanceMarkedStatus.outTimeMarked) &&
         <Button
           title={!attendanceMarkedStatus.inTimeMarked ? 'Mark In Time' : !attendanceMarkedStatus.outTimeMarked ? 'Mark Out Time' : 'Already Marked'}
           variant="primary"
           style={$.markAttendanceBtn}
           leftIconName="photo-camera"
           onPress={gotoCameraPage}
+          disabled={loading}
         />
       }
     </Screen>
@@ -221,7 +246,14 @@ const $ = StyleSheet.create({
   notFoundImage: {
     minWidth: 100,
     minHeight: 100,
-    maxWidth: 200,
-    maxHeight: 200,
+    maxWidth: 150,
+    maxHeight: 150,
   },
 })
+
+
+
+
+/**
+ * 
+ */

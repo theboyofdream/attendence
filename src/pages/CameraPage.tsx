@@ -24,6 +24,7 @@ export function CameraPage({ navigation }: CameraPageProps) {
   const [refreshing, setRefreshing] = useState(false);
 
   const [geolocation, setGeolocation] = useState<GeolocationResponse | null>();
+  const [isFakeLocation, setIsFakeLocation] = useState(false)
   const [datetime, setDatetime] = useState<Date | null>(null)
 
   const [detectedUser, setDetectedUser] = useState(`${user.firstname} ${user.lastname}`)
@@ -64,7 +65,8 @@ export function CameraPage({ navigation }: CameraPageProps) {
 
     }
     Geolocation.getCurrentPosition(async position => {
-      if (position && position['mocked'] === false) {
+      if (position && position['mocked'] == true) {
+        setIsFakeLocation(true)
         setMsg({
           id: 'mocked',
           title: 'fake location detected',
@@ -110,7 +112,6 @@ export function CameraPage({ navigation }: CameraPageProps) {
       } else if (!attendanceMarkedStatus.outTimeMarked) {
         success = await markAttendance(params, 'out time')
       }
-
       success && back()
     }
     setSubmitting(false)
@@ -185,7 +186,7 @@ export function CameraPage({ navigation }: CameraPageProps) {
             <Button title="Submit" variant='primary' disabled={submitBtnDisabled} onPress={submit} />
           </View>
 
-          <Text>
+          <Text style={$.logger}>
             {refreshing && 'Refreshing...'}
             {submitting && 'Saving...'}
           </Text>
@@ -210,5 +211,9 @@ const $ = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between'
+  },
+  logger: {
+    bottom: SPACING.lg * 2,
+    position: 'absolute'
   }
 })
