@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
-import { useAuthStore } from "~stores";
+import { AxiosError } from "axios";
+import { useState } from "react";
+import { useAuthStore, useMessageHeader } from "~stores";
 import { URI, fetcher } from "~utils";
 
 type response = {
@@ -17,17 +18,38 @@ export type statusTypes = {
 
 export function useTypesOfAttendanceStatus() {
   const { user } = useAuthStore()
+  const { setMsg } = useMessageHeader()
   const [statusTypes, setStatusTypes] = useState<statusTypes[]>([])
 
   async function refreshStatusTypes() {
-    const { status, statusText, data } = await fetcher.postForm(URI["types of attendance status"], { user_id: user.id, franchise_id: user.franchiseId });
-    const json = data as response;
+    let error = false;
+    let message = 'success'
+    let _statusTypes_ = [] as statusTypes[]
 
-    const error = !(status === 200 ? json.status == 200 : false);
-    const message = status === 200 ? json.message : statusText;
-    const types = status === 200 ? parseStatusTypeJson(json.data) : parseStatusTypeJson([]);
-
-    setStatusTypes(types)
+    await fetcher.postForm(URI["types of attendance status"], { user_id: user.id, franchise_id: user.franchiseId })
+      .then(({ status, statusText, data }) => {
+        const json = data as response;
+        error = !(status === 200 ? json.status == 200 : false);
+        message = status === 200 ? json.message : statusText;
+        if (!error) {
+          _statusTypes_ = parseStatusTypeJson(json.data);
+        }
+      })
+      .catch(e => {
+        error = true;
+        message = (e as AxiosError).message
+      })
+      .finally(() => {
+        if (error) {
+          setMsg({
+            id: 'types of attendance status',
+            title: 'Attendance Status',
+            description: message,
+            type: 'error',
+          })
+        }
+        setStatusTypes(_statusTypes_)
+      })
   }
 
   return {
@@ -39,12 +61,8 @@ export function useTypesOfAttendanceStatus() {
 
 function parseStatusTypeJson(json: { [key: string]: string }[]) {
   let arr = json as unknown as statusTypes[]
-  // let object = {} as {[key:number]:statusTypes}
   if (arr.length > 0) {
     arr = arr.sort((a, b) => a.id - b.id)
-    // arr.forEach(statusType=>{
-    //   object[statusType.id] = statusType
-    // })
     return arr as unknown as statusTypes[]
   }
   return []

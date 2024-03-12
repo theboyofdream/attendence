@@ -30,12 +30,12 @@ const $ = StyleSheet.create({
   },
   title: {
     fontSize: FONTSIZE.lg,
-    letterSpacing: SPACING.xs * 0.7,
+    letterSpacing: SPACING.xxs * 0.5,
     fontFamily: 'Poppins-Medium',
   },
   subTitle: {
     fontSize: FONTSIZE.md,
-    letterSpacing: SPACING.xs * 0.7,
+    letterSpacing: SPACING.xxs * 0.5,
     fontFamily: 'Poppins-Medium',
   },
   paragraph: {},
@@ -52,3 +52,5 @@ const $ = StyleSheet.create({
     color: COLORS.textMuted
   }
 })
+
+export const textStyle = $;

@@ -9,7 +9,8 @@ type IconButtonProps = PressableProps & {
   iconStyle?: TextStyle & { size?: number },
   letter?: string,
   letterStyle?: TextStyle,
-  type?: 'icon' | 'letter'
+  type?: 'icon' | 'letter',
+  compact?: boolean
 }
 
 export function IconButton(props: IconButtonProps) {
@@ -32,6 +33,7 @@ export function IconButton(props: IconButtonProps) {
       style={[
         $.base,
         $[variant],
+        props.compact && $.compact,
         props.disabled && $.disabled,
         pressin && $.disabled,
         props.style
@@ -70,8 +72,12 @@ const $ = StyleSheet.create({
     alignItems: 'center',
     borderRadius: ROUNDNESS.md,
     borderWidth: 1,
-    width: FONTSIZE.lg * 1.8,
-    height: FONTSIZE.lg * 1.8
+    width: FONTSIZE.lg * 2,
+    height: FONTSIZE.lg * 2
+  },
+  compact: {
+    width: FONTSIZE.lg,
+    height: FONTSIZE.lg
   },
   baseText: {
     fontSize: FONTSIZE.lg,
@@ -84,12 +90,14 @@ const $ = StyleSheet.create({
     color: COLORS.background,
   },
   secondary: {
-    borderColor: COLORS.textMuted,
+    // borderColor: COLORS.transparent,
+    borderColor: COLORS.backgroundSecondary,
     backgroundColor: COLORS.backgroundSecondary,
     color: COLORS.text
   },
   danger: {
-    borderColor: COLORS.dangerText,
+    // borderColor: COLORS.dangerText,
+    borderColor: COLORS.dangerBackground,
     backgroundColor: COLORS.dangerBackground,
     color: COLORS.dangerText
   },
@@ -99,7 +107,8 @@ const $ = StyleSheet.create({
     color: COLORS.background,
   },
   info: {
-    borderColor: COLORS.infoText,
+    // borderColor: COLORS.infoText,
+    borderColor: COLORS.infoBackground,
     backgroundColor: COLORS.infoBackground,
     color: COLORS.infoText,
   },

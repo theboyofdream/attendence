@@ -2,6 +2,7 @@ import MMKVStorage, { useMMKVStorage } from "react-native-mmkv-storage";
 import { storage, useMessageHeader } from "~stores";
 import { URI, dateFns, fetcher } from "~src/utils";
 import { useEffect, useMemo, useState } from "react";
+import { AxiosError } from "axios";
 
 type response = {
   status: number,
@@ -28,23 +29,33 @@ export function useAuthStore() {
   const { setMsg } = useMessageHeader()
 
   async function login(email: string, password: string) {
-    const { status, statusText, data } = await fetcher.postForm(URI.login, { email, password });
-    const json = data as response;
 
-    const error = !(status === 200 ? json.status == 200 : false);
-    const message = status === 200 ? json.message : statusText;
-    const user = error ? parseLoginJson({}) : parseLoginJson(json.data);
+    let error = false;
+    let message = 'success';
+    let user = parseLoginJson({})
 
-    if (error) {
-      setMsg({
-        id: 'login',
-        title: 'login',
-        description: message,
-        type: 'error'
+    await fetcher.postForm(URI.login, { email, password })
+      .then(({ status, statusText, data }) => {
+        const json = data as response;
+        error = !(status === 200 ? json.status == 200 : false);
+        message = status === 200 ? json.message : statusText;
+        user = error ? parseLoginJson({}) : parseLoginJson(json.data);
       })
-    }
-
-    storeUser(user)
+      .catch(e => {
+        error = true;
+        message = (e as AxiosError).message
+      })
+      .finally(() => {
+        if (error) {
+          setMsg({
+            id: 'login',
+            title: 'login',
+            description: message,
+            type: 'error'
+          })
+        }
+        storeUser(user)
+      })
   }
 
   function logout() {

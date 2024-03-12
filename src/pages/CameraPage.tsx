@@ -2,7 +2,8 @@ import Geolocation, { GeolocationResponse } from "@react-native-community/geoloc
 import { useAppState } from "@react-native-community/hooks";
 import { useIsFocused } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { useEffect, useRef, useState } from "react";
+import { AxiosError } from "axios";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Image as RNImage, Pressable, StyleSheet, View } from "react-native";
 import { Image } from "react-native-compressor";
 import { Camera, useCameraDevice, useCameraFormat } from "react-native-vision-camera";
@@ -24,6 +25,50 @@ export function CameraPage({ navigation }: CameraPageProps) {
   const [refreshing, setRefreshing] = useState(false);
 
   const [geolocation, setGeolocation] = useState<GeolocationResponse | null>();
+  const [address, setAddress] = useState('')
+  let getAddress = async () => {
+    let error = false;
+    let message = 'success'
+    let address = '';
+    if (geolocation) {
+      await fetcher.postForm(URI["get address"], {
+        user_id: user.id,
+        franchise_id: user.franchiseId,
+        latitude: geolocation.coords.latitude,
+        longitude: geolocation.coords.longitude
+      })
+        .then(({ status, statusText, data }) => {
+          const json = data as {
+            status: number,
+            message: string
+            data: string
+          }
+          error = !(status === 200 ? (json.status == 200 || json.status == 404) : false);
+          message = status < 500 ? json.message : statusText;
+          address = json.data
+          // console.log(json)
+        })
+        .catch(e => {
+          error = true
+          message = (e as AxiosError).message
+        })
+        .finally(() => {
+          if (error) {
+            setMsg({
+              id: 'address error',
+              title: 'Unable to get address',
+              description: message,
+              type: 'error',
+            })
+          }
+
+        })
+    }
+    setAddress(address)
+  }
+  useEffect(() => {
+    getAddress();
+  }, [geolocation])
   const [isFakeLocation, setIsFakeLocation] = useState(false)
   const [datetime, setDatetime] = useState<Date | null>(null)
 
@@ -38,7 +83,7 @@ export function CameraPage({ navigation }: CameraPageProps) {
   async function getDateTime(latitude: number, longitude: number) {
     const { status, statusText, data } = await fetcher.get(`${URI.datetime}?latitude=${latitude}&longitude=${longitude}`)
     if (status === 200) {
-      console.log({ datetime: data })
+      // console.log({ datetime: data })
       setDatetime(new Date(data['dateTime']))
     } else {
       setDatetime(new Date());
@@ -99,7 +144,7 @@ export function CameraPage({ navigation }: CameraPageProps) {
     if (image && geolocation && datetime) {
       let params: markAttendanceParams = {
         location: {
-          address: "",
+          address: address,
           latitude: geolocation.coords.latitude,
           longitude: geolocation.coords.longitude,
         },
@@ -126,7 +171,8 @@ export function CameraPage({ navigation }: CameraPageProps) {
       <IconButton
         iconName="arrow-back"
         type='icon'
-        variant="primary"
+        variant='primary'
+        // style={{ position: 'absolute', top: 0, left: 0, margin: SPACING.lg, zIndex: 99, backgroundColor: '#ffffff60', borderColor: '#ffffff10' }}
         style={{ position: 'absolute', top: 0, left: 0, margin: SPACING.lg, zIndex: 99 }}
         onPress={back}
       />
@@ -134,13 +180,17 @@ export function CameraPage({ navigation }: CameraPageProps) {
         device &&
         <>
           <Camera
-            style={[
-              StyleSheet.absoluteFill,
-              {
-                width: cameraDimension.width,
-                height: cameraDimension.height,
-                backgroundColor: COLORS.text,
-              }]}
+            style={
+              // StyleSheet.absoluteFill
+              [
+                StyleSheet.absoluteFill,
+                {
+                  width: cameraDimension.width * 1.3,
+                  height: cameraDimension.height,
+                  left: -100,
+                }
+              ]
+            }
             ref={cameraRef}
             device={device}
             isActive={cameraIsActive}
@@ -153,12 +203,31 @@ export function CameraPage({ navigation }: CameraPageProps) {
             enableHighQualityPhotos
           />
           <Pressable
-            style={{ padding: SPACING.sm, borderRadius: ROUNDNESS.circle, aspectRatio: 1, backgroundColor: COLORS.text, position: 'absolute', bottom: 0, alignSelf: 'center', marginBottom: SPACING.lg * 2, justifyContent: 'center', alignItems: 'center' }}
+            style={{
+              padding: SPACING.sm * 0.5,
+              borderRadius: ROUNDNESS.circle,
+              aspectRatio: 1,
+              // backgroundColor: COLORS.background,
+              position: 'absolute',
+              bottom: 0,
+              alignSelf: 'center',
+              marginBottom: SPACING.lg * 2,
+              justifyContent: 'center',
+              alignItems: 'center',
+              width: FONTSIZE.lg * 3.5,
+              borderWidth: FONTSIZE.xxs * 0.3,
+              borderColor: COLORS.background,
+
+            }}
             onPress={capture}
-          >
-            <View style={{ width: FONTSIZE.lg * 2.8, borderRadius: ROUNDNESS.circle, aspectRatio: 1, backgroundColor: COLORS.background, justifyContent: 'center', alignItems: 'center' }}>
-            </View>
-          </Pressable>
+            children={<View style={{
+              flex: 1,
+              width: '100%',
+              height: '100%',
+              borderRadius: ROUNDNESS.circle,
+              backgroundColor: COLORS.background,
+            }} />}
+          />
         </>
       }
       {
@@ -173,17 +242,33 @@ export function CameraPage({ navigation }: CameraPageProps) {
             disabled={submitting}
             onPress={closePreview}
           />
-          <RNImage source={{ uri: image }} resizeMode="contain" style={{ width: width, height: height * 0.3, minHeight: 300 }} />
+
+          <View style={{ flexDirection: 'row', alignItems: 'baseline' }}>
+            <Text variant='caption' style={{ opacity: 0.3 }}>{'PUNCH '}</Text>
+            <Text variant='title'>{attendanceMarkedStatus.inTimeMarked ? 'OUT' : 'IN'}</Text>
+          </View>
+
+          <RNImage source={{ uri: image }} resizeMode="contain" style={{ width: width, height: height * 0.3, minHeight: 300, maxHeight: 400 }} />
 
           <View style={{ width: '60%', maxWidth: 400, gap: SPACING.md }}>
             <Text style={{ fontSize: FONTSIZE.md }}>{detectedUser}</Text>
-            <Text>{JSON.stringify(geolocation)}</Text>
-            <Text>{datetime && dateFns.toHumanReadleDate(datetime)}</Text>
+            {
+              geolocation &&
+              <View>
+                <Text variant="caption" style={{ opacity: 0.3 }}>latitude, longitude: </Text>
+                <Text>{geolocation.coords.latitude}, {geolocation.coords.longitude}</Text>
+              </View>
+            }
+            <View>
+              <Text variant="caption" style={{ opacity: 0.3 }}>address: </Text>
+              <Text>{address}</Text>
+            </View>
+            <Text variant='caption' style={{ textAlign: 'right', fontStyle: 'italic', opacity: 0.6 }}>{datetime && dateFns.toHumanReadleDate(datetime)}</Text>
           </View>
 
           <View style={{ flexDirection: 'row', gap: SPACING.lg }}>
             <Button title="refresh" leftIconName="refresh" onPress={init} disabled={submitting || refreshing} />
-            <Button title="Submit" variant='primary' disabled={submitBtnDisabled} onPress={submit} />
+            <Button title="Submit" variant='primary' disabled={submitBtnDisabled || address.length < 1} onPress={submit} />
           </View>
 
           <Text style={$.logger}>

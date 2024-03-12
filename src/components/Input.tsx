@@ -23,14 +23,16 @@ export const Input = (props: InputProps) => {
         style={[
           {
             backgroundColor: COLORS[props.errorText ? 'dangerBackground' : 'backgroundSecondary'],
-            borderRadius: ROUNDNESS.sm,
+            // backgroundColor: '#00000015',
+            borderRadius: ROUNDNESS.md,
             color: COLORS[props.errorText ? 'dangerText' : 'text'],
             padding: SPACING.md,
+            paddingLeft: SPACING.lg,
             fontSize: FONTSIZE.sm
           },
           props.style
         ]}
-        cursorColor={COLORS[props.errorText ? 'dangerText' : 'infoText']}
+        cursorColor={COLORS[props.errorText ? 'dangerText' : 'text']}
         placeholderTextColor={
           props.placeholderTextColor ?? COLORS.textTertiary
         }

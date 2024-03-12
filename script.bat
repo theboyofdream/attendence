@@ -1,17 +1,25 @@
 @echo off
 
 if "%~1"=="save" (
+  set date = date /t
+  set time = time /t
   git add .
-  git commit -m "bot: auto saving today's the progress."
-  git push --all
+  git commit -m "bot: saving progress. date-%date%, time-%time%"
 )
 
 
-if "%~1"=="restore" (
-  git pull
+if "%~1"=="pull" (
+  git pull --all
   yarn install
 )
 
+if "%~1"=="push" (
+  set date = date /t
+  set time = time /t
+  git add .
+  git commit -m "bot: saving progress. date-%date%, time-%time%"
+  git push --all
+)
 
 
 :: Cleans the android gradle

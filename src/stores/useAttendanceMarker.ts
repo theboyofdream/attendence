@@ -3,6 +3,7 @@ import { useMMKVStorage } from "react-native-mmkv-storage"
 import fs from 'react-native-fs';
 import { storage, useAuthStore, useMessageHeader } from "~stores"
 import { URI, dateFns, fetcher } from "~utils"
+import { AxiosError } from "axios";
 
 export type markAttendanceParams = {
   location: {
@@ -56,35 +57,37 @@ export function useAttendanceMarker() {
     }
 
     // console.log(postBody)
+    let error = false;
+    let message = 'success';
 
-    const { status, statusText, data } = await fetcher.postForm(uri, postBody, {
-      headers: { 'Content-Type': 'multipart/form-data' }
-    })
-    const json = data as response;
+    await fetcher.postForm(uri, postBody, { headers: { 'Content-Type': 'multipart/form-data' } })
+      .then(({ status, statusText, data }) => {
+        const json = data as response;
 
-    const error = !(status === 200 ? json.status == 200 : false);
-    const message = status === 200 ? json.status == 200 ? json.data : json.message : statusText;
-    const response = json.data
+        error = !(status === 200 ? json.status == 200 : false);
+        message = status === 200 ? json.status == 200 ? json.data : json.message : statusText;
+      })
+      .catch(e => {
+        error = true;
+        message = (e as AxiosError).message
+      })
+      .finally(() => {
+        if (!error) {
+          const o = type === 'in time' ? { inTimeMarked: true } : { outTimeMarked: true }
+          setAttendanceMarkedStatus((p) => ({
+            ...p,
+            ...o,
+            lastModified: new Date()
+          }))
+        }
 
-    // console.log({ data })
-    // console.log({ status, statusText, error, message, response })
-
-    if (!error) {
-      const o = type === 'in time' ? { inTimeMarked: true } : { outTimeMarked: true }
-      setAttendanceMarkedStatus((p) => ({
-        ...p,
-        ...o,
-        lastModified: new Date()
-      }))
-    }
-
-    setMsg({
-      id: type,
-      title: type,
-      description: message,
-      type: `${error ? 'error' : 'normal'}`,
-    })
-
+        setMsg({
+          id: type,
+          title: type,
+          description: message,
+          type: `${error ? 'error' : 'normal'}`,
+        })
+      })
     return !error
   }
 

@@ -96,6 +96,7 @@ export function Stats(props: StatsProps) {
                   <View style={style} key={type.id}>
                     <Text variant='caption' style={{ flex: 1 }}>{type.name}</Text>
                     <Text>{type.count || 0}</Text>
+                    {/* <Text style={{ color: COLORS.background }}>{type.count || 0}</Text> */}
                   </View>
                 )
               }
@@ -118,7 +119,10 @@ const $ = StyleSheet.create({
   },
   statsContainer: {
     minHeight: 80,
-    backgroundColor: COLORS.backgroundSecondary,
+    backgroundColor: COLORS.backgroundSecondary.slice(0, -2) + '08',
+    // backgroundColor: COLORS.text,
+    // borderWidth: 1,
+    // borderColor: COLORS.textTertiary,
     padding: SPACING.lg,
     // justifyContent: 'space-between',
   },

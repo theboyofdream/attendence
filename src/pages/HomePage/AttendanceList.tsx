@@ -8,12 +8,13 @@ type AttendanceListProps = {
   monthName: string;
   year: number;
   punchIn: { time: string, approvalStatusName: string },
-  punchOut: { time: string, approvalStatusName: string }
+  punchOut: { time: string, approvalStatusName: string },
+  onPress?: () => void
 }
 export function AttendanceList(props: AttendanceListProps) {
   const { date, monthName, dayName, year, punchIn, punchOut } = props
   return (
-    <Pressable style={$.list}>
+    <Pressable style={$.list} onPress={props.onPress} >
       <View style={$.avatar}>
         <Text style={{ fontWeight: 'bold' }}>{date < 10 ? `0${date}` : date}</Text>
       </View>
@@ -39,15 +40,23 @@ const $ = StyleSheet.create({
   list: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.lg,
+    // paddingHorizontal: SPACING.lg,
+    // paddingVertical: SPACING.lg,
+    padding: SPACING.lg,
     gap: SPACING.lg,
-    borderRadius: ROUNDNESS.sm,
+    borderRadius: ROUNDNESS.md,
+    backgroundColor: COLORS.text + '06',
+    // borderWidth: 1,
+    // borderColor: COLORS.backgroundSecondary,
+    // elevation: 1,
+
+    // backgroundColor: COLORS.background,
   },
   avatar: {
     height: FONTSIZE.lg * 2.1,
     aspectRatio: 1,
-    backgroundColor: COLORS.backgroundSecondary,
+    // backgroundColor: COLORS.text + '07',
+    backgroundColor: COLORS.background,
     borderRadius: 100,
     position: 'relative',
     justifyContent: 'center',

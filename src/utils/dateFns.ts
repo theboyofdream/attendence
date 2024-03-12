@@ -84,11 +84,34 @@ export const dateFns = {
     shortName: dateFns.format(date, { month: 'short' }),
     longName: dateFns.format(date, { month: 'long' })
   }),
+  /**
+   * Compares 2 dates (i.e. date1 from date2) based on month & year.
+   * 
+   * date1 >= date2
+   * @param date1 `Date`
+   * @param date2 `Date`
+   * @returns `boolean`
+   */
+  compareMonth: (date1: Date, date2: Date) => {
+    const y1 = date1.getFullYear()
+    const y2 = date2.getFullYear()
+    if (y1 > y2) {
+      return true;
+    } else if (y1 === y2) {
+      const m1 = date1.getMonth()
+      const m2 = date2.getMonth()
+      if (m1 >= m2) {
+        return true
+      }
+    }
+    return false
+  },
   //
   getDayInfo: (date: Date) => ({
     index: date.getMonth(),
     shortName: dateFns.format(date, { weekday: 'short' }),
     longName: dateFns.format(date, { weekday: 'long' })
-  })
+  }),
+  //
 
 }

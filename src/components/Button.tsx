@@ -9,6 +9,7 @@ type ButtonProps = PressableProps & {
   titleStyle?: TextStyle
   rightIconName?: string
   leftIconName?: string
+  compact?: boolean
 }
 
 export function Button(props: ButtonProps) {
@@ -28,6 +29,7 @@ export function Button(props: ButtonProps) {
       style={[
         $.base,
         $[variant],
+        props.compact && $.compact,
         props.disabled && $.disabled,
         pressin && $.disabled,
         props.style
@@ -57,31 +59,40 @@ const $ = StyleSheet.create({
     alignSelf: 'flex-start',
     justifyContent: 'center',
     alignItems: 'center',
-    padding: SPACING.lg * 0.8,
+    padding: SPACING.lg,
     paddingHorizontal: SPACING.lg * 1.5,
-    borderRadius: ROUNDNESS.md,
+    borderRadius: ROUNDNESS.lg,
     borderWidth: 1,
     flexDirection: 'row',
     gap: SPACING.md
   },
+  compact: {
+    padding: SPACING.md,
+    paddingHorizontal: SPACING.md * 1.5,
+    gap: SPACING.md,
+    minWidth: 0
+  },
   baseText: {
     fontSize: FONTSIZE.xs,
     letterSpacing: SPACING.xxs,
-    textTransform: 'uppercase',
+    textTransform: 'capitalize',
     backgroundColor: COLORS.transparent
   },
   disabled: { opacity: 0.75 },
   primary: {
     backgroundColor: COLORS.text,
+    // backgroundColor: '#333399',
     color: COLORS.background,
   },
   secondary: {
-    borderColor: COLORS.textMuted,
+    // borderColor: COLORS.textMuted,
+    borderColor: COLORS.backgroundSecondary,
     backgroundColor: COLORS.backgroundSecondary,
     color: COLORS.text
   },
   danger: {
-    borderColor: COLORS.dangerText,
+    // borderColor: COLORS.dangerText,
+    borderColor: COLORS.dangerBackground,
     backgroundColor: COLORS.dangerBackground,
     color: COLORS.dangerText
   },
@@ -95,7 +106,8 @@ const $ = StyleSheet.create({
     color: COLORS.background,
   },
   info: {
-    borderColor: COLORS.infoText,
+    // borderColor: COLORS.infoText,
+    borderColor: COLORS.infoBackground,
     backgroundColor: COLORS.infoBackground,
     color: COLORS.infoText,
   },

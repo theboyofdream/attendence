@@ -15,7 +15,7 @@ const LOGIN_SCHEMA = Yup.object().shape({
 	password: Yup
 		.string()
 		.required('Password is required')
-		.min(8, 'Password must contain at least 8 characters')
+		.min(4, 'Password must contain at least 4 characters')
 })
 
 export function LoginPage() {
@@ -25,11 +25,10 @@ export function LoginPage() {
 
 	return (
 		<Screen style={$.screen}>
-			<Text variant="title">ATTENDENCE LOGIN</Text>
+			<Text variant="title">Attendence Login</Text>
 			<Image source={require('assets/illustrations/login.png')} style={$.loginImage} />
 			<Formik
-				// initialValues={{ email: 'example@mail.com', password: '1234567890' }}
-				initialValues={{ email: 'inam@dhwajpartner.com', password: 'inam@123' }}
+				initialValues={{ email: '', password: '' }}
 				validationSchema={LOGIN_SCHEMA}
 				onSubmit={async (form) => {
 					setSubmitting(true)
@@ -40,7 +39,7 @@ export function LoginPage() {
 					({ handleChange, handleBlur, handleSubmit, errors, values, touched }) => (
 						<View style={$.form}>
 							<Input
-								placeholder="example@mail.com"
+								placeholder="youremail@mail.com"
 								label="Email ID"
 								value={values.email}
 								onChangeText={handleChange('email')}
@@ -48,7 +47,7 @@ export function LoginPage() {
 								errorText={touched.email ? errors.email : ''}
 							/>
 							<Input
-								placeholder="example@123"
+								placeholder="abc123"
 								label="Password"
 								value={values.password}
 								onChangeText={handleChange('password')}
@@ -58,8 +57,8 @@ export function LoginPage() {
 							/>
 							<Pressable style={{ flexDirection: 'row', gap: SPACING.md, alignItems: 'center' }} onPress={() => setPasswordVisibility(!isPasswordVisible)}>
 								<View style={{ position: 'relative' }}>
-									<MaterialCommunityIcons name="square-rounded" size={FONTSIZE.lg} color={COLORS[(touched.password && errors.password) ? 'dangerBackground' : 'backgroundSecondary']} style={{ position: isPasswordVisible ? 'absolute' : 'relative' }} />
-									{isPasswordVisible && <MaterialCommunityIcons name="check" size={FONTSIZE.md * 0.7} color={COLORS[(touched.password && errors.password) ? 'dangerText' : 'text']} style={{ padding: 3, paddingVertical: 4 }} />}
+									<MaterialCommunityIcons name="square-rounded" size={FONTSIZE.lg} color={COLORS.backgroundSecondary} style={{ position: isPasswordVisible ? 'absolute' : 'relative' }} />
+									{isPasswordVisible && <MaterialCommunityIcons name="check" size={FONTSIZE.md * 0.7} color={COLORS.text} style={{ padding: 3, paddingVertical: 4 }} />}
 								</View>
 								<Text>Show Password</Text>
 							</Pressable>

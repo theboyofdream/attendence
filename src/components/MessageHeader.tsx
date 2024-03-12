@@ -12,7 +12,7 @@ export function MessageHeader() {
   function animateHeader(animateType: 'in' | 'out' = 'in') {
     Animated.timing(positionY, {
       toValue: animateType === 'in' ? 0 : -150,
-      duration: 300,
+      duration: animateType === 'in' ? 400 : 300,
       useNativeDriver: false
     }).start()
   }

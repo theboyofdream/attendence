@@ -5,3 +5,5 @@ export * from "./Text"
 export * from './IconButton'
 export * from './MessageHeader'
 export * from './Skeleton'
+export * from './Overlay'
+export * from './Spacer'

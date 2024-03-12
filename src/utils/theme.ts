@@ -1,6 +1,6 @@
 export const COLORS = {
   background: '#FFFFFF',
-  backgroundSecondary: '#F5F5F5',//'#dddddd90', //'#F5F5F5',// '#E9E9E9',//'#9D9D9D',
+  backgroundSecondary: '#00000015',//'#dddddd90', //'#F5F5F5',// '#E9E9E9',//'#9D9D9D',
   // backgroundTertiary: '#e9e9e9', //'#7B7B7B',
 
   dangerText: '#E82334',
